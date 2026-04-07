@@ -1,0 +1,37 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(echo \"EXIT:$?\")",
+      "Bash(cd:*)",
+      "Bash(node src/database/init.js)",
+      "Bash(rm -f src/database/finance.db)",
+      "Bash(node -e \":*)",
+      "Bash(pkill -f \"node src/server\")",
+      "Bash(pkill -f \"node.*3000\")",
+      "Bash(pkill -f \"node.*server\")",
+      "Bash(taskkill //F //IM node.exe)",
+      "Bash(npm create:*)",
+      "Bash(node src/server.js)",
+      "Bash(npm run:*)",
+      "Bash(npm uninstall:*)",
+      "Bash(psql --version)",
+      "Bash(pg_isready)",
+      "Bash(docker --version)",
+      "Bash(pg_ctlcluster 17 main status)",
+      "Read(//c//**)",
+      "Bash(\"/c/Program Files/PostgreSQL/18/bin/pg_isready.exe\" -p 5432 2>&1)",
+      "Bash(export PGPASSWORD='Cerveja01.')",
+      "Bash(\"/c/Program Files/PostgreSQL/18/bin/psql.exe\" -U postgres -c \"SELECT 1 AS connected;\")",
+      "Bash(\"/c/Program Files/PostgreSQL/18/bin/psql.exe\" -U postgres -c \"CREATE DATABASE financetrack;\")",
+      "Bash(PGPASSWORD='Cerveja01.' node src/server.js)",
+      "Bash(netstat -ano)",
+      "Bash(taskkill:*)",
+      "Bash(\"/c/Program Files/PostgreSQL/18/bin/psql.exe\" -U postgres -d financetrack -c \"\\\\dt\")",
+      "Bash(findstr:*)",
+      "Bash(grep -v \"^0$\")",
+      "Bash(find C:Usersluiz_FinanceTrackfrontend -maxdepth 1 -name *.json -o -maxdepth 1 -name *.config.* -o -maxdepth 1 -name *.html)",
+      "Bash(gh:*)"
+    ]
+  }
+}
