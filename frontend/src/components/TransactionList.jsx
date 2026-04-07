@@ -4,6 +4,11 @@ export default function TransactionList({ transactions, onEdit, onDelete }) {
   }
 
   function formatDate(dateStr) {
+    // Avoid timezone shift — the DB stores dates as YYYY-MM-DD
+    if (typeof dateStr === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+      const [y, m, d] = dateStr.split('-');
+      return `${d}/${m}/${y}`;
+    }
     return new Date(dateStr).toLocaleDateString('pt-BR');
   }
 

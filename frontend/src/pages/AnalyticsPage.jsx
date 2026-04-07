@@ -46,8 +46,9 @@ export default function AnalyticsPage({ user, onLogout, onDashboard, onAnalytics
 
   // Timeline: spending by month
   const monthlyData = transactions.reduce((acc, t) => {
-    const d = new Date(t.date);
-    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+    // Parse string directly to avoid timezone shift
+    const [y, m] = (t.date || '').split('-');
+    const key = `${y}-${String(m).padStart(2, '0')}`;
     if (!acc[key]) acc[key] = { month: key, income: 0, expense: 0 };
     if (t.type === 'income') acc[key].income += Number(t.amount);
     else acc[key].expense += Number(t.amount);

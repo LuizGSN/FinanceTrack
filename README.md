@@ -40,7 +40,7 @@
 ### 1. Clone o repositório
 
 ```bash
-git clone https://github.com/<seu-usuario>/FinanceTrack.git
+git clone https://github.com/LuizGSN/FinanceTrack.git
 cd FinanceTrack
 ```
 
