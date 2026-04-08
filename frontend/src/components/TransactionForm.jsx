@@ -8,7 +8,13 @@ export default function TransactionForm({ transaction, onClose, onSave }) {
   const [type, setType] = useState(transaction?.type || 'expense');
   const [category, setCategory] = useState(transaction?.category || '');
   const [date, setDate] = useState(
-    transaction?.date ? transaction.date.slice(0, 10) : new Date().toISOString().slice(0, 10)
+    transaction?.date ? transaction.date.slice(0, 10) : (() => {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    })()
   );
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
