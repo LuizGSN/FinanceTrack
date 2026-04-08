@@ -19,7 +19,11 @@
 
 ## 🖥️ Demonstração
 
-> *(Adicione screenshots atualizadas aqui após o deploy)*
+<img width="1916" height="960" alt="image" src="https://github.com/user-attachments/assets/15fb9d80-0c65-49b9-8d73-17eb0516c170" />
+<img width="1914" height="960" alt="image" src="https://github.com/user-attachments/assets/3890137b-384c-402b-a65e-fcd9f3f7786e" />
+<img width="1912" height="898" alt="image" src="https://github.com/user-attachments/assets/8a813631-514b-4f57-9e04-9439cb3756de" />
+
+
 
 ## 🛠️ Tecnologias
 
