@@ -9,14 +9,34 @@ function getHeaders() {
   return headers;
 }
 
+async function handleResponse(res) {
+  if (res.status === 401) {
+    // Token expired or invalid — clear storage and force reload
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.reload();
+    throw new Error('Sessão expirada. Faça login novamente.');
+  }
+  if (!res.ok) {
+    let errorMessage = 'Erro desconhecido';
+    try {
+      const body = await res.json();
+      errorMessage = body.error || errorMessage;
+    } catch {
+      errorMessage = `Erro ${res.status}: ${res.statusText}`;
+    }
+    throw new Error(errorMessage);
+  }
+  return res.json();
+}
+
 export async function register(name, email, password) {
   const res = await fetch(`${BASE_URL}/auth/register`, {
     method: 'POST',
     headers: getHeaders(),
     body: JSON.stringify({ name, email, password }),
   });
-  if (!res.ok) throw new Error((await res.json()).error);
-  return res.json();
+  return handleResponse(res);
 }
 
 export async function login(email, password) {
@@ -25,14 +45,12 @@ export async function login(email, password) {
     headers: getHeaders(),
     body: JSON.stringify({ email, password }),
   });
-  if (!res.ok) throw new Error((await res.json()).error);
-  return res.json();
+  return handleResponse(res);
 }
 
 export async function getMe() {
   const res = await fetch(`${BASE_URL}/auth/me`, { headers: getHeaders() });
-  if (!res.ok) throw new Error((await res.json()).error);
-  return res.json();
+  return handleResponse(res);
 }
 
 export async function getTransactions(filters = {}) {
@@ -40,8 +58,7 @@ export async function getTransactions(filters = {}) {
   const res = await fetch(`${BASE_URL}/transactions?${params}`, {
     headers: getHeaders(),
   });
-  if (!res.ok) throw new Error((await res.json()).error);
-  return res.json();
+  return handleResponse(res);
 }
 
 export async function createTransaction(data) {
@@ -50,8 +67,7 @@ export async function createTransaction(data) {
     headers: getHeaders(),
     body: JSON.stringify(data),
   });
-  if (!res.ok) throw new Error((await res.json()).error);
-  return res.json();
+  return handleResponse(res);
 }
 
 export async function updateTransaction(id, data) {
@@ -60,8 +76,7 @@ export async function updateTransaction(id, data) {
     headers: getHeaders(),
     body: JSON.stringify(data),
   });
-  if (!res.ok) throw new Error((await res.json()).error);
-  return res.json();
+  return handleResponse(res);
 }
 
 export async function deleteTransaction(id) {
@@ -69,6 +84,5 @@ export async function deleteTransaction(id) {
     method: 'DELETE',
     headers: getHeaders(),
   });
-  if (!res.ok) throw new Error((await res.json()).error);
-  return res.json();
+  return handleResponse(res);
 }

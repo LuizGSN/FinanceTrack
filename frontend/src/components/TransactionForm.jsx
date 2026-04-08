@@ -51,7 +51,7 @@ export default function TransactionForm({ transaction, onClose, onSave }) {
             placeholder="Descrição"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-[#D4A017]"
             required
           />
           <input
@@ -59,7 +59,7 @@ export default function TransactionForm({ transaction, onClose, onSave }) {
             placeholder="Valor"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
-            className="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-[#D4A017]"
             required
             step="0.01"
             min="0"
@@ -67,7 +67,7 @@ export default function TransactionForm({ transaction, onClose, onSave }) {
           <select
             value={type}
             onChange={(e) => setType(e.target.value)}
-            className="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-[#D4A017]"
             required
           >
             <option value="expense">Despesa</option>
@@ -78,21 +78,21 @@ export default function TransactionForm({ transaction, onClose, onSave }) {
             placeholder="Categoria (ex: Alimentação)"
             value={category}
             onChange={(e) => setCategory(e.target.value)}
-            className="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-[#D4A017]"
             required
           />
           <input
             type="date"
             value={date}
             onChange={(e) => setDate(e.target.value)}
-            className="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-[#D4A017]"
             required
           />
           <div className="flex gap-4">
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 bg-blue-600 text-white p-3 rounded hover:bg-blue-700 disabled:opacity-50"
+              className="flex-1 bg-[#0A0A0A] text-[#D4A017] font-semibold p-3 rounded hover:bg-[#1a1a1a] disabled:opacity-50 transition-all border border-[#D4A017]"
             >
               {loading ? 'Salvando...' : isEditing ? 'Salvar' : 'Criar'}
             </button>

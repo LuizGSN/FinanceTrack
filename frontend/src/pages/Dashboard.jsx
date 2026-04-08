@@ -47,30 +47,30 @@ export default function Dashboard({ user, onLogout, onDashboard, onAnalytics }) 
 
       {/* Barra de filtros */}
       <div className="bg-[#0A0A0A] border-t border-gray-800 sticky top-[52px] z-30">
-        <div className="max-w-6xl mx-auto px-4 py-2 flex flex-wrap items-center gap-2">
-          <span className="text-gray-500 text-xs">Filtros:</span>
+        <div className="max-w-6xl mx-auto px-4 py-2 flex flex-wrap items-center gap-1.5">
+          <span className="text-gray-500 text-xs mr-1 hidden sm:inline">Filtros:</span>
           <select
             value={filterType}
             onChange={(e) => setFilterType(e.target.value)}
-            className="bg-[#1A1A1A] text-gray-200 border border-gray-700 rounded px-2 py-1 text-xs"
+            className="bg-[#1A1A1A] text-gray-200 border border-gray-700 rounded px-2 py-1 text-xs min-w-[90px]"
           >
             <option value="">Todos</option>
             <option value="income">Receitas</option>
             <option value="expense">Despesas</option>
           </select>
-          <span className="text-gray-600 text-xs">De</span>
+          <span className="text-gray-600 text-xs hidden sm:inline">De</span>
           <input
             type="date"
             value={filterDateFrom}
             onChange={(e) => setFilterDateFrom(e.target.value)}
-            className="bg-[#1A1A1A] text-gray-200 border border-gray-700 rounded px-2 py-1 text-xs"
+            className="bg-[#1A1A1A] text-gray-200 border border-gray-700 rounded px-2 py-1 text-xs min-w-[130px]"
           />
-          <span className="text-gray-600 text-xs">Até</span>
+          <span className="text-gray-600 text-xs hidden sm:inline">Até</span>
           <input
             type="date"
             value={filterDateTo}
             onChange={(e) => setFilterDateTo(e.target.value)}
-            className="bg-[#1A1A1A] text-gray-200 border border-gray-700 rounded px-2 py-1 text-xs"
+            className="bg-[#1A1A1A] text-gray-200 border border-gray-700 rounded px-2 py-1 text-xs min-w-[130px]"
           />
           <button
             onClick={clearFilters}

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { getTransactions } from '../api';
 import Header from '../components/Header';
-import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, LineChart, Line } from 'recharts';
+import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, LineChart, Line, Legend } from 'recharts';
 
 const COLORS = ['#3B82F6', '#EF4444', '#10B981', '#F59E0B', '#8B5CF6', '#EC4899', '#06B6D4', '#F97316', '#6366F1', '#14B8A6'];
 
@@ -150,7 +150,13 @@ export default function AnalyticsPage({ user, onLogout, onDashboard, onAnalytics
                       <Cell key={i} fill={COLORS[i % COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip formatter={(v) => fmt(v)} />
+                  <Tooltip
+                    formatter={(v) => fmt(v)}
+                    contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb' }}
+                  />
+                  <Legend
+                    formatter={(value) => <span className="text-sm text-gray-700">{value}</span>}
+                  />
                 </PieChart>
               </ResponsiveContainer>
             </div>
@@ -163,8 +169,16 @@ export default function AnalyticsPage({ user, onLogout, onDashboard, onAnalytics
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="name" />
                   <YAxis />
-                  <Tooltip formatter={(v) => fmt(v)} />
-                  <Bar dataKey="value" fill="#D4A017" radius={[8, 8, 0, 0]} />
+                  <Tooltip
+                    formatter={(v) => fmt(v)}
+                    contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb' }}
+                  />
+                  <Legend />
+                  <Bar dataKey="value" name="Valor" radius={[8, 8, 0, 0]}>
+                    {comparisonData.map((entry, i) => (
+                      <Cell key={i} fill={entry.name === 'Receitas' ? '#10B981' : '#EF4444'} />
+                    ))}
+                  </Bar>
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -178,9 +192,13 @@ export default function AnalyticsPage({ user, onLogout, onDashboard, onAnalytics
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="month" />
                     <YAxis />
-                    <Tooltip formatter={(v) => fmt(v)} />
-                    <Line type="monotone" dataKey="income" stroke="#10B981" strokeWidth={2} name="Receitas" />
-                    <Line type="monotone" dataKey="expense" stroke="#EF4444" strokeWidth={2} name="Despesas" />
+                    <Tooltip
+                      formatter={(v) => fmt(v)}
+                      contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb' }}
+                    />
+                    <Legend />
+                    <Line type="monotone" dataKey="income" stroke="#10B981" strokeWidth={2} name="Receitas" dot={{ r: 4 }} />
+                    <Line type="monotone" dataKey="expense" stroke="#EF4444" strokeWidth={2} name="Despesas" dot={{ r: 4 }} />
                   </LineChart>
                 </ResponsiveContainer>
               </div>

@@ -9,9 +9,9 @@ export default function Header({ user, onLogout, onDashboard, onAnalytics, activ
           <div className="flex items-center gap-3">
             <Logo size={32} />
             <h1 className="text-lg font-bold text-white tracking-wide">
-              FinanceTrak
+              FinanceTrack
             </h1>
-            <span className="text-gray-700">|</span>
+            <span className="text-gray-600">|</span>
             <span className="text-[#D4A017] text-sm">
               Olá, {user.name}!
             </span>
@@ -37,7 +37,7 @@ export default function Header({ user, onLogout, onDashboard, onAnalytics, activ
             >
               Analytics
             </button>
-            <span className="text-gray-700">|</span>
+            <span className="text-gray-600">|</span>
             <button
               onClick={onLogout}
               className="text-red-400 hover:text-red-300 transition-colors"

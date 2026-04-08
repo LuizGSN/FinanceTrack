@@ -1,8 +1,8 @@
 services:
   postgres:
     image: postgres:17-alpine
+    env_file: .env
     environment:
-      POSTGRES_PASSWORD: Cerveja01.
       POSTGRES_DB: financetrack
     ports:
       - "5432:5432"
@@ -11,11 +11,7 @@ services:
 
   backend:
     build: ./backend
-    environment:
-      DATABASE_URL: postgresql://postgres:Cerveja01.@postgres:5432/financetrack
-      JWT_SECRET: ft_prod_secret_k7x9m2q4wz8a1p5n3v6b0c
-      ALLOWED_ORIGINS: http://localhost:80
-      NODE_ENV: production
+    env_file: .env
     ports:
       - "3000:3000"
     depends_on:
