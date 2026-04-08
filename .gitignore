@@ -1,4 +1,31 @@
+# Environment
 .env
 .env.local
+.env.*.local
+
+# Dependencies
 node_modules/
+
+# Build outputs
 dist/
+build/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# AI assistant settings
+.claude/
+.ai/
+
+# Database (if SQLite used locally)
+*.db
+*.sqlite
+
+# Logs
+*.log
+npm-debug.log*
