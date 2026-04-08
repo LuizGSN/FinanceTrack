@@ -1,4 +1,8 @@
-const { Pool } = require('pg');
+const { Pool, types } = require('pg');
+
+// Disable automatic date parsing — keep DATE columns as strings (YYYY-MM-DD)
+// This prevents timezone shift when the driver converts Date objects
+types.setTypeParser(types.builtins.DATE, (val) => val);
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
