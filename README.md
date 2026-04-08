@@ -18,7 +18,7 @@
 
 | Login & Dashboard | Analytics |
 |---|---|
-| *Screenshot aqui* | *Screenshot aqui* |
+| ![Login](image.png)![Dashboard](image-1.png) | ![Analytics](image-2.png) |
 
 ## Tecnologias
 
@@ -162,4 +162,4 @@ FinanceTrack/
 
 ---
 
-Feito com por [Seu Nome](https://github.com/<seu-usuario>)
+Feito com por [Luiz Gonzaga](https://github.com/<LuizGSN>)
