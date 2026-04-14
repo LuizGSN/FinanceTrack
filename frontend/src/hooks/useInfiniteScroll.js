@@ -1,36 +1,34 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect } from 'react';
 
-export function useInfiniteScroll(callback, options = {}) {
-  const {
-    threshold = 0.1,
-    root = null,
-    rootMargin = '0px',
-  } = options;
-
-  const sentryRef = useRef(null);
-
+/**
+ * Hook para infinite scroll usando IntersectionObserver
+ * @param {Object} options - Configurações
+ * @param {React.RefObject} options.ref - Ref do elemento para monitorar
+ * @param {Function} options.onIntersect - Callback quando elemento fica visível
+ * @param {number} options.threshold - Threshold (0-1)
+ * @param {string} options.rootMargin - Margin do root
+ */
+export function useInfiniteScroll({ ref, onIntersect, threshold = 0.1, rootMargin = '100px' }) {
   useEffect(() => {
-    if (!sentryRef.current) return;
+    if (!ref?.current) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            callback();
+            onIntersect?.();
           }
         });
       },
-      { threshold, root, rootMargin }
+      { threshold, rootMargin }
     );
 
-    observer.observe(sentryRef.current);
+    observer.observe(ref.current);
 
     return () => {
-      if (sentryRef.current) {
-        observer.unobserve(sentryRef.current);
+      if (ref.current) {
+        observer.unobserve(ref.current);
       }
     };
-  }, [callback, threshold, root, rootMargin]);
-
-  return sentryRef;
+  }, [ref, onIntersect, threshold, rootMargin]);
 }

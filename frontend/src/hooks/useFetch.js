@@ -4,7 +4,7 @@ import Toast from '../utils/Toast';
 /**
  * Custom hook para fazer requisições HTTP com tratamento automático de erros
  * @template T
- * @returns {Object} { loading, error, execute }
+ * @returns {Object} { loading, error, execute, request }
  */
 export const useFetch = () => {
   const [loading, setLoading] = useState(false);
@@ -44,7 +44,34 @@ export const useFetch = () => {
     }
   };
 
-  return { loading, error, execute };
+  // Helper method for cleaner API calls
+  const request = async (url, method = 'GET', body = null, options = {}) => {
+    const fetchOptions = {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
+        ...options.headers,
+      },
+      ...options,
+    };
+
+    if (body) {
+      fetchOptions.body = JSON.stringify(body);
+    }
+
+    const response = await fetch(url, fetchOptions);
+    const data = await response.json();
+
+    if (!response.ok) {
+      const errorMessage = data.error || `HTTP ${response.status}`;
+      throw new Error(errorMessage);
+    }
+
+    return data;
+  };
+
+  return { loading, error, execute, request };
 };
 
 export default useFetch;
