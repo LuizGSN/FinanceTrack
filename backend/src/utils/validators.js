@@ -5,6 +5,7 @@ const ALLOWED_CATEGORIES = {
 };
 
 const TRANSACTION_TYPES = ['income', 'expense'];
+const INVESTMENT_TYPES = ['stock', 'crypto', 'bond', 'real_state', 'fund', 'other'];
 
 function validateEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) && email.length <= 255;
@@ -85,6 +86,33 @@ module.exports = {
   validateTransactionType,
   validateCategory,
   validateTransaction,
+  validateInvestment,
   ALLOWED_CATEGORIES,
   TRANSACTION_TYPES,
+  INVESTMENT_TYPES,
 };
+
+function validateInvestment(data) {
+  const errors = {};
+
+  if (!data.name || !validateName(data.name)) {
+    errors.name = 'Name must be between 2 and 100 characters';
+  }
+
+  if (!INVESTMENT_TYPES.includes(data.type)) {
+    errors.type = `Type must be one of: ${INVESTMENT_TYPES.join(', ')}`;
+  }
+
+  if (!validateAmount(data.initial_amount)) {
+    errors.initial_amount = 'Initial amount must be a positive number';
+  }
+
+  if (!validateAmount(data.current_value)) {
+    errors.current_value = 'Current value must be a positive number';
+  }
+
+  return {
+    isValid: Object.keys(errors).length === 0,
+    errors,
+  };
+}

@@ -12,6 +12,7 @@ const logger = require('./utils/logger');
 const swaggerSpecs = require('./swagger/config');
 const authRoutes = require('./routes/auth');
 const transactionRoutes = require('./routes/transactions');
+const investmentRoutes = require('./routes/investments');
 
 const app = express();
 
@@ -37,6 +38,7 @@ app.use('/api/v1/transactions', transactionLimiter);
 // Rotas com versionamento
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/transactions', transactionRoutes);
+app.use('/api/v1/investments', investmentRoutes);
 
 // Manter compatibilidade com versão anterior
 app.use('/auth', authRoutes);

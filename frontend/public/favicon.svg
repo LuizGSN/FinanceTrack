@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Círculo de fundo -->
+  <circle cx="16" cy="16" r="16" fill="#10B981"/>
+  
+  <!-- Letra F estilizada -->
+  <text x="16" y="22" font-size="24" font-weight="bold" fill="white" text-anchor="middle" font-family="Arial, sans-serif">FT</text>
+  
+  <!-- Símbolo de dinheiro ($) -->
+  <path d="M16 8 L16 24 M12 10 C12 10 12 12 16 13 C20 14 20 14 20 16 C20 18 16 19 16 19" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+</svg>
