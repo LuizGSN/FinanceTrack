@@ -1,4 +1,5 @@
 const rateLimit = require('express-rate-limit');
+const { ipKeyGenerator } = require('../utils/ipKeyGenerator');
 
 // Rate limiting para autenticação (login/register)
 const authLimiter = rateLimit({
@@ -8,10 +9,7 @@ const authLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   skip: (req) => process.env.NODE_ENV === 'test',
-  keyGenerator: (req) => {
-    // Usar IP do cliente real (de trás de reverse proxy)
-    return req.ip || req.connection.remoteAddress;
-  },
+  keyGenerator: ipKeyGenerator,
 });
 
 // Rate limiting geral para API
