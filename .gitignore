@@ -5,14 +5,18 @@
 
 # Dependencies
 node_modules/
+package-lock.json
 
 # Build outputs
 dist/
 build/
+coverage/
 
 # IDE
 .vscode/
 .idea/
+*.swp
+*.swo
 
 # OS
 .DS_Store
@@ -22,10 +26,24 @@ Thumbs.db
 .claude/
 .ai/
 
-# Database (if SQLite used locally)
+# Database
 *.db
 *.sqlite
+pgdata/
 
 # Logs
 *.log
+logs/
+
+# SSL certificates (never commit!)
+ssl/
+*.pem
+*.key
+
+# Temporary
+tmp/
+temp/
+.cache/
+npm-debug.log*
+yarn-debug.log*
 npm-debug.log*

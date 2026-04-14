@@ -1,4 +1,5 @@
 import { API_URL } from './config';
+import Toast from './utils/Toast';
 
 const BASE_URL = API_URL;
 
@@ -9,43 +10,67 @@ function getHeaders() {
   return headers;
 }
 
-async function handleResponse(res) {
+async function handleResponse(res, options = {}) {
+  // Treat 401 as special case (token expired)
   if (res.status === 401) {
-    // Token expired or invalid — clear storage and force reload
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    window.location.reload();
-    throw new Error('Sessão expirada. Faça login novamente.');
+    Toast.error('Sessão expirada. Faça login novamente.');
+    window.location.href = '/login';
+    throw new Error('Sessão expirada');
   }
-  if (!res.ok) {
-    let errorMessage = 'Erro desconhecido';
-    try {
-      const body = await res.json();
-      errorMessage = body.error || errorMessage;
-    } catch {
-      errorMessage = `Erro ${res.status}: ${res.statusText}`;
+
+  let errorMessage = 'Erro desconhecido';
+  try {
+    if (res.ok) {
+      return res.status === 204 ? {} : await res.json();
     }
-    throw new Error(errorMessage);
+
+    const body = await res.json();
+    errorMessage = body?.error || body?.message || `Erro ${res.status}`;
+  } catch (err) {
+    errorMessage = `Erro ${res.status}: ${res.statusText}`;
   }
-  return res.json();
+
+  // Show error toast if enabled
+  if (options.showError !== false) {
+    Toast.error(errorMessage);
+  }
+
+  const error = new Error(errorMessage);
+  error.status = res.status;
+  error.originalResponse = res;
+  throw error;
 }
 
 export async function register(name, email, password) {
-  const res = await fetch(`${BASE_URL}/auth/register`, {
-    method: 'POST',
-    headers: getHeaders(),
-    body: JSON.stringify({ name, email, password }),
-  });
-  return handleResponse(res);
+  try {
+    const res = await fetch(`${BASE_URL}/auth/register`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify({ name, email, password }),
+    });
+    const data = await handleResponse(res);
+    Toast.success('Conta criada com sucesso!');
+    return data;
+  } catch (err) {
+    throw err;
+  }
 }
 
 export async function login(email, password) {
-  const res = await fetch(`${BASE_URL}/auth/login`, {
-    method: 'POST',
-    headers: getHeaders(),
-    body: JSON.stringify({ email, password }),
-  });
-  return handleResponse(res);
+  try {
+    const res = await fetch(`${BASE_URL}/auth/login`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify({ email, password }),
+    });
+    const data = await handleResponse(res);
+    Toast.success('Login realizado com sucesso!');
+    return data;
+  } catch (err) {
+    throw err;
+  }
 }
 
 export async function getMe() {

@@ -148,12 +148,14 @@ FinanceTrack/
 
 - Senhas com **bcrypt 12 rounds** (async, sem bloquear event loop)
 - **Helmet** para headers HTTP seguros
-- **Rate limiting** em rotas de autenticação (20 req/15 min)
+- **Rate limiting** por IP/usuário com limite progressivo (5 req auth/15min, 100 req API/min, 30 req transações/min)
 - **CORS** restrito com allowed origins
-- Validação completa de inputs (email, senha, valores, datas, tamanhos)
+- Validação completa de inputs (email, senha, valores, datas, tamanhos, categorias)
+- **HTTPS** em produção com certificados SSL/TLS (TLS 1.2+)
 - SQL injection protegido por **prepared statements**
 - **Interceptor 401** no frontend — redireciona ao login quando token expira
 - **Validação de token** ao recarregar a página via `/auth/me`
+- Headers de segurança: HSTS, X-Content-Type-Options, X-Frame-Options, CSP
 
 ## 🌐 Deploy
 
@@ -173,6 +175,57 @@ FinanceTrack/
 2. Aponte para o diretório `frontend/`
 3. Configure a variável `VITE_API_BASE_URL` com a URL do backend no Render
 4. Deploy automático a cada push
+
+---
+
+## 🚀 V1.1.0 — Melhorias Implementadas
+
+### Testes Automatizados
+- **Jest** no backend com testes de validadores
+- **Vitest + React Testing Library** no frontend
+- Cobertura de testes em utilitários e validações
+
+### Validações Aprimoradas
+- Categorias permitidas por tipo: salary, freelance, investment (income) ; food, transport, utilities, etc (expense)
+- Rejeição de datas futuras, valores negativos e montantes excessivos
+- Validação centralizada em `src/utils/validators.js`
+
+### Rate Limiting Melhorado
+- Por IP/usuário com endpoints específicos
+- Auth: 5 req/15min | API: 100 req/min | Transações: 30 req/min
+- Compatível com reverse proxy (detecta IP real)
+
+### HTTPS em Produção
+- Suporte nativo com certificados SSL/TLS
+- Nginx configurado com redirecionamento HTTP→HTTPS
+- Headers de segurança avançados (HSTS, CSP, X-Frame-Options)
+
+### Toast Notifications
+- Sistema de notificações para sucesso, erro, aviso e informação
+- Animações suaves e duração configurável
+- Integrado em `api.js` para erro handling automático
+
+### Versionamento de API
+- Todos endpoints em `/api/v1/` (compatibilidade regressiva mantida)
+- Melhor preparação para evoluções futuras
+- Configurável via `.env`
+
+### Documentação Swagger/OpenAPI
+- Documentação interativa em `http://localhost:3000/api/docs`
+- Teste de endpoints diretamente na UI
+- Suporte a autenticação Bearer JWT
+
+### Logs Estruturados
+- **Winston** para logging profissional
+- Arquivos: `logs/all.log` (todos) e `logs/error.log` (erros)
+- Níveis: error, warn, info, http, debug
+
+### Variáveis de Ambiente Completas
+- `.env.example` totalmente documentado
+- Seções: Database, Backend, Frontend, CORS, SSL/TLS, Logging, Rate Limit, Features, Security
+- [Ver documentação completa](./IMPROVEMENTS.md)
+
+**Veja [IMPROVEMENTS.md](./IMPROVEMENTS.md) para detalhes técnicos completos e [EXAMPLES.md](./EXAMPLES.md) para exemplos de uso.**
 
 ---
 
