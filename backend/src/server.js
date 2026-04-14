@@ -79,6 +79,8 @@ initializeDb().then(async () => {
       name TEXT NOT NULL,
       email TEXT UNIQUE NOT NULL,
       password TEXT NOT NULL,
+      reset_token TEXT,
+      reset_expires TIMESTAMP,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
     CREATE TABLE IF NOT EXISTS transactions (
@@ -89,6 +91,15 @@ initializeDb().then(async () => {
       type TEXT NOT NULL CHECK(type IN ('income', 'expense')),
       category TEXT NOT NULL,
       date DATE NOT NULL,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+    CREATE TABLE IF NOT EXISTS investments (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      name TEXT NOT NULL,
+      type TEXT NOT NULL CHECK(type IN ('stock', 'crypto', 'bond', 'real_state', 'fund', 'other')),
+      initial_amount NUMERIC NOT NULL,
+      current_value NUMERIC NOT NULL,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
   `);

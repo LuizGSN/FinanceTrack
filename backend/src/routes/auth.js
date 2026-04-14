@@ -1,8 +1,11 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 const { prepare } = require('../database/db');
 const authMiddleware = require('../middleware/auth');
+const { sendConfirmationEmail, sendPasswordResetEmail } = require('../services/emailService');
+const logger = require('../utils/logger');
 
 const router = express.Router();
 
@@ -99,6 +102,102 @@ router.get('/me', authMiddleware, async (req, res) => {
     if (!user) return res.status(404).json({ error: 'User not found' });
     res.json(user);
   } catch (err) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Forgot Password
+router.post('/forgot-password', async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email || !validateEmail(email)) {
+      return res.status(400).json({ error: 'Valid email is required' });
+    }
+
+    const user = await prepare('SELECT id, name, email FROM users WHERE email = $1').get(email.toLowerCase());
+    if (!user) {
+      // Não revelar se email existe ou não (segurança)
+      return res.json({ message: 'If email exists, password reset link was sent' });
+    }
+
+    // Gerar token de reset com expiração de 1 hora
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const resetTokenHash = crypto.createHash('sha256').update(resetToken).digest('hex');
+    const resetExpires = new Date(Date.now() + 60 * 60 * 1000); // 1 hora
+
+    await prepare(
+      'UPDATE users SET reset_token = $1, reset_expires = $2 WHERE id = $3'
+    ).run(resetTokenHash, resetExpires, user.id);
+
+    // Enviar email
+    const emailSent = await sendPasswordResetEmail(user.email, user.name, resetToken);
+    if (!emailSent) {
+      logger.error('Failed to send password reset email');
+      return res.status(500).json({ error: 'Failed to send email' });
+    }
+
+    res.json({ message: 'Password reset link sent to email' });
+  } catch (err) {
+    logger.error('Forgot password error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Verify Reset Token
+router.get('/verify-reset-token/:token', async (req, res) => {
+  try {
+    const { token } = req.params;
+    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+
+    const user = await prepare(
+      'SELECT id FROM users WHERE reset_token = $1 AND reset_expires > NOW()'
+    ).get(tokenHash);
+
+    if (!user) {
+      return res.status(400).json({ error: 'Invalid or expired token' });
+    }
+
+    res.json({ message: 'Token is valid' });
+  } catch (err) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Reset Password
+router.post('/reset-password', async (req, res) => {
+  try {
+    const { token, newPassword } = req.body;
+
+    if (!token || !newPassword) {
+      return res.status(400).json({ error: 'Token and new password are required' });
+    }
+
+    if (!validatePassword(newPassword)) {
+      return res.status(400).json({ error: 'Password must be between 6 and 128 characters' });
+    }
+
+    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+
+    const user = await prepare(
+      'SELECT id FROM users WHERE reset_token = $1 AND reset_expires > NOW()'
+    ).get(tokenHash);
+
+    if (!user) {
+      return res.status(400).json({ error: 'Invalid or expired token' });
+    }
+
+    // Hash nova senha
+    const hashedPassword = await bcrypt.hash(newPassword, 12);
+
+    // Atualizar senha e limpar token
+    await prepare(
+      'UPDATE users SET password = $1, reset_token = NULL, reset_expires = NULL WHERE id = $2'
+    ).run(hashedPassword, user.id);
+
+    res.json({ message: 'Password reset successfully' });
+  } catch (err) {
+    logger.error('Reset password error:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
