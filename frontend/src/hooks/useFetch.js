@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import Toast from '../utils/Toast';
+import { API_URL } from '../config';
 
 /**
  * Custom hook para fazer requisições HTTP com tratamento automático de erros
@@ -22,7 +23,7 @@ export const useFetch = () => {
     setError(null);
 
     try {
-      const response = await fetch(url, {
+      const response = await fetch(API_URL + url, {
         headers: {
           'Content-Type': 'application/json',
           ...options.headers,
@@ -74,7 +75,7 @@ export const useFetch = () => {
       fetchOptions.body = JSON.stringify(body);
     }
 
-    const response = await fetch(url, fetchOptions);
+    const response = await fetch(API_URL + url, fetchOptions);
 
     if (response.status === 401) {
       handle401();

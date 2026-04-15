@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Mail, ArrowLeft } from 'lucide-react';
-import { useFetch } from '../hooks/useFetch';
+import { sendForgotPassword } from '../api';
 
 const GOLD = '#D4A017';
 const DARK_BG = '#050505';
@@ -12,7 +12,6 @@ export default function ForgotPasswordPage({ onBackToLogin }) {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
-  const { request } = useFetch();
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -26,7 +25,7 @@ export default function ForgotPasswordPage({ onBackToLogin }) {
 
     try {
       setLoading(true);
-      const response = await request('/api/v1/auth/forgot-password', 'POST', { email });
+      await sendForgotPassword(email);
       setMessage('E-mail de recuperação enviado! Verifique sua caixa de entrada.');
       setEmail('');
     } catch (err) {

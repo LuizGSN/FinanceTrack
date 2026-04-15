@@ -112,3 +112,84 @@ export async function deleteTransaction(id) {
   });
   return handleResponse(res);
 }
+
+export async function getInvestments() {
+  const res = await fetch(`${BASE_URL}/api/v1/investments`, {
+    headers: getHeaders(),
+  });
+  return handleResponse(res);
+}
+
+export async function createInvestment(data) {
+  const res = await fetch(`${BASE_URL}/api/v1/investments`, {
+    method: 'POST',
+    headers: getHeaders(),
+    body: JSON.stringify(data),
+  });
+  return handleResponse(res);
+}
+
+export async function updateInvestment(id, data) {
+  const res = await fetch(`${BASE_URL}/api/v1/investments/${id}`, {
+    method: 'PUT',
+    headers: getHeaders(),
+    body: JSON.stringify(data),
+  });
+  return handleResponse(res);
+}
+
+export async function deleteInvestment(id) {
+  const res = await fetch(`${BASE_URL}/api/v1/investments/${id}`, {
+    method: 'DELETE',
+    headers: getHeaders(),
+  });
+  return handleResponse(res);
+}
+
+export async function getInvestmentsSummary() {
+  const res = await fetch(`${BASE_URL}/api/v1/investments/summary`, {
+    headers: getHeaders(),
+  });
+  return handleResponse(res);
+}
+
+export async function sendForgotPassword(email) {
+  try {
+    const res = await fetch(`${BASE_URL}/api/v1/auth/forgot-password`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify({ email }),
+    });
+    const data = await handleResponse(res, { showError: false });
+    Toast.success('E-mail de recuperação enviado!');
+    return data;
+  } catch (err) {
+    throw err;
+  }
+}
+
+export async function resetPassword(token, newPassword) {
+  try {
+    const res = await fetch(`${BASE_URL}/api/v1/auth/reset-password`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify({ token, newPassword }),
+    });
+    const data = await handleResponse(res, { showError: false });
+    Toast.success('Senha redefinida com sucesso!');
+    return data;
+  } catch (err) {
+    throw err;
+  }
+}
+
+export async function confirmEmail(token) {
+  try {
+    const res = await fetch(`${BASE_URL}/api/v1/auth/confirm-email?token=${token}`, {
+      headers: getHeaders(),
+    });
+    return handleResponse(res, { showError: false });
+  } catch (err) {
+    throw err;
+  }
+}

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Lock, ArrowLeft, Eye, EyeOff } from 'lucide-react';
-import { useFetch } from '../hooks/useFetch';
+import { resetPassword as resetPasswordApi } from '../api';
 
 const GOLD = '#D4A017';
 const DARK_BG = '#050505';
@@ -15,7 +15,6 @@ export default function ResetPasswordPage({ token, onBackToLogin, onSuccess }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
-  const { request } = useFetch();
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -39,10 +38,7 @@ export default function ResetPasswordPage({ token, onBackToLogin, onSuccess }) {
 
     try {
       setLoading(true);
-      await request('/api/v1/auth/reset-password', 'POST', {
-        token,
-        newPassword: password,
-      });
+      await resetPasswordApi(token, password);
       setMessage('Senha redefinida com sucesso! Redirecionando...');
       setTimeout(() => {
         onSuccess?.();

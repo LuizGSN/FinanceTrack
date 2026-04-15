@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { CheckCircle, XCircle, ArrowLeft } from 'lucide-react';
-import { useFetch } from '../hooks/useFetch';
+import { confirmEmail as confirmEmailApi } from '../api';
 
 const GOLD = '#D4A017';
 const DARK_BG = '#050505';
@@ -11,24 +11,17 @@ export default function ConfirmEmailPage({ token, onBackToLogin }) {
   const [loading, setLoading] = useState(true);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState(null);
-  const { request } = useFetch();
 
   useEffect(() => {
     if (!token) {
-      setError('Token not provided');
+      setError('Token não fornecido');
       setLoading(false);
       return;
     }
 
     const confirmEmail = async () => {
       try {
-        const response = await fetch(`/api/v1/auth/confirm-email?token=${token}`);
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.error || 'Failed to confirm email');
-        }
-
+        await confirmEmailApi(token);
         setSuccess(true);
         setLoading(false);
         // Auto-redirect após 3 segundos

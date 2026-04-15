@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "@openrouter/sdk": "^0.12.8"
+  }
+}
