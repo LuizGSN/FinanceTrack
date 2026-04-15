@@ -105,7 +105,7 @@ const getPasswordResetTemplate = (userName, resetLink) => `
 
 // Enviar e-mail de confirmação
 async function sendConfirmationEmail(email, userName, confirmationToken) {
-  const confirmationLink = `${process.env.FRONTEND_URL}/confirm-email?token=${confirmationToken}`;
+  const confirmationLink = `${process.env.FRONTEND_URL}/?token=${confirmationToken}&type=confirm`;
 
   try {
     await transporter.sendMail({
@@ -123,7 +123,7 @@ async function sendConfirmationEmail(email, userName, confirmationToken) {
 
 // Enviar e-mail de recuperação de senha
 async function sendPasswordResetEmail(email, userName, resetToken) {
-  const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
+  const resetLink = `${process.env.FRONTEND_URL}/?token=${resetToken}&type=reset`;
 
   try {
     await transporter.sendMail({

@@ -21,18 +21,20 @@ function AppContent() {
   useEffect(() => {
     // Verificar se há token de confirmação de email na URL
     const params = new URLSearchParams(window.location.search);
-    const emailToken = params.get('token');
-    const resetTokenParam = params.get('reset-token');
+    const urlToken = params.get('token');
+    const urlType = params.get('type');
 
-    if (emailToken && window.location.pathname.includes('confirm-email')) {
-      setConfirmToken(emailToken);
+    if (urlToken && urlType === 'confirm') {
+      setConfirmToken(urlToken);
       setAuthPage('confirm-email');
+      setAuthLoading(false);
       return;
     }
 
-    if (resetTokenParam && window.location.pathname.includes('reset-password')) {
-      setResetToken(resetTokenParam);
+    if (urlToken && urlType === 'reset') {
+      setResetToken(urlToken);
       setAuthPage('reset');
+      setAuthLoading(false);
       return;
     }
 

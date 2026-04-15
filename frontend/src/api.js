@@ -51,8 +51,8 @@ export async function register(name, email, password) {
       headers: getHeaders(),
       body: JSON.stringify({ name, email, password }),
     });
-    const data = await handleResponse(res);
-    Toast.success('Conta criada com sucesso!');
+    const data = await handleResponse(res, { showError: false });
+    Toast.success('Conta criada! Verifique seu email para confirmar o cadastro.');
     return data;
   } catch (err) {
     throw err;
@@ -66,7 +66,7 @@ export async function login(email, password) {
       headers: getHeaders(),
       body: JSON.stringify({ email, password }),
     });
-    const data = await handleResponse(res);
+    const data = await handleResponse(res, { showError: false });
     Toast.success('Login realizado com sucesso!');
     return data;
   } catch (err) {

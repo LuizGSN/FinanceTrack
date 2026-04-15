@@ -14,6 +14,7 @@ export default function LoginPage({ onLogin, onShowForgot }) {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [registrationSuccess, setRegistrationSuccess] = useState(false);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -21,17 +22,87 @@ export default function LoginPage({ onLogin, onShowForgot }) {
     setLoading(true);
     try {
       if (isRegister) {
-        const { token, user } = await register(name, email, password);
-        onLogin(token, user);
+        await register(name, email, password);
+        setRegistrationSuccess(true);
+        setName('');
+        setEmail('');
+        setPassword('');
       } else {
         const { token, user } = await login(email, password);
         onLogin(token, user);
       }
     } catch (err) {
-      setError(err.message);
+      if (err.status === 403) {
+        setError('Confirme seu email antes de entrar. Verifique sua caixa de entrada.');
+      } else {
+        setError(err.message);
+      }
     } finally {
       setLoading(false);
     }
+  }
+
+  if (registrationSuccess) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4" style={{
+        background: `linear-gradient(135deg, ${DARK_BG} 0%, #1a1a1a 50%, ${DARK_BG} 100%)`,
+      }}>
+        <div className="w-full max-w-md">
+          <div className="rounded-2xl p-8 shadow-2xl" style={{
+            backgroundColor: CARD_BG,
+            border: `1px solid ${CARD_BORDER}`,
+          }}>
+            <div className="text-center">
+              <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style={{
+                background: `linear-gradient(135deg, #22c55e 0%, #16a34a 100%)`,
+              }}>
+                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-bold mb-2" style={{ color: '#22c55e' }}>
+                Conta Criada com Sucesso!
+              </h2>
+              <p className="text-gray-400 mb-6 text-sm">
+                Um email de confirmação foi enviado para <span style={{ color: GOLD }}>{email}</span>
+              </p>
+              <div className="p-4 rounded-lg mb-6" style={{
+                backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                border: '1px solid rgba(34, 197, 94, 0.3)',
+              }}>
+                <p style={{ color: '#22c55e', fontSize: '14px', marginBottom: '8px' }}>
+                  ✓ Verifique sua caixa de entrada
+                </p>
+                <p style={{ color: '#999', fontSize: '12px', marginBottom: '4px' }}>
+                  Clique no link de confirmação para ativar sua conta
+                </p>
+                <p style={{ color: '#666', fontSize: '12px' }}>
+                  Não recebeu? Verifique a pasta de spam
+                </p>
+              </div>
+              <button
+                onClick={() => setRegistrationSuccess(false)}
+                className="w-full font-semibold py-3 rounded-lg transition-all"
+                style={{
+                  background: `linear-gradient(135deg, ${GOLD} 0%, #b8860b 100%)`,
+                  color: '#0A0A0A',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = `linear-gradient(135deg, #f5c542 0%, #d4a017 100%)`;
+                  e.currentTarget.style.boxShadow = '0 6px 20px rgba(212, 160, 23, 0.3)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = `linear-gradient(135deg, ${GOLD} 0%, #b8860b 100%)`;
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
+              >
+                Voltar ao Login
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -59,7 +130,7 @@ export default function LoginPage({ onLogin, onShowForgot }) {
           border: `1px solid ${CARD_BORDER}`,
         }}>
           <h2 className="text-2xl font-bold text-center mb-6" style={{ color: GOLD }}>
-            {isRegister ? 'Criar conta' : 'Bem-vindo de volta'}
+            {isRegister ? 'Criar conta' : 'Bem-vindo'}
           </h2>
 
           {error && (
