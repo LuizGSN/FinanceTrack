@@ -46,7 +46,7 @@ async function handleResponse(res, options = {}) {
 
 export async function register(name, email, password) {
   try {
-    const res = await fetch(`${BASE_URL}/auth/register`, {
+    const res = await fetch(`${BASE_URL}/api/v1/auth/register`, {
       method: 'POST',
       headers: getHeaders(),
       body: JSON.stringify({ name, email, password }),
@@ -61,7 +61,7 @@ export async function register(name, email, password) {
 
 export async function login(email, password) {
   try {
-    const res = await fetch(`${BASE_URL}/auth/login`, {
+    const res = await fetch(`${BASE_URL}/api/v1/auth/login`, {
       method: 'POST',
       headers: getHeaders(),
       body: JSON.stringify({ email, password }),
@@ -75,20 +75,20 @@ export async function login(email, password) {
 }
 
 export async function getMe() {
-  const res = await fetch(`${BASE_URL}/auth/me`, { headers: getHeaders() });
+  const res = await fetch(`${BASE_URL}/api/v1/auth/me`, { headers: getHeaders() });
   return handleResponse(res);
 }
 
 export async function getTransactions(filters = {}) {
   const params = new URLSearchParams(filters);
-  const res = await fetch(`${BASE_URL}/transactions?${params}`, {
+  const res = await fetch(`${BASE_URL}/api/v1/transactions?${params}`, {
     headers: getHeaders(),
   });
   return handleResponse(res);
 }
 
 export async function createTransaction(data) {
-  const res = await fetch(`${BASE_URL}/transactions`, {
+  const res = await fetch(`${BASE_URL}/api/v1/transactions`, {
     method: 'POST',
     headers: getHeaders(),
     body: JSON.stringify(data),
@@ -97,7 +97,7 @@ export async function createTransaction(data) {
 }
 
 export async function updateTransaction(id, data) {
-  const res = await fetch(`${BASE_URL}/transactions/${id}`, {
+  const res = await fetch(`${BASE_URL}/api/v1/transactions/${id}`, {
     method: 'PUT',
     headers: getHeaders(),
     body: JSON.stringify(data),
@@ -106,7 +106,7 @@ export async function updateTransaction(id, data) {
 }
 
 export async function deleteTransaction(id) {
-  const res = await fetch(`${BASE_URL}/transactions/${id}`, {
+  const res = await fetch(`${BASE_URL}/api/v1/transactions/${id}`, {
     method: 'DELETE',
     headers: getHeaders(),
   });
