@@ -58,15 +58,18 @@ router.post('/register', async (req, res) => {
       'INSERT INTO users (name, email, password, confirmation_token, confirmation_expires) VALUES ($1, $2, $3, $4, $5)'
     ).run(name, email, hashedPassword, confirmationTokenHash, tokenExpires);
 
-    // Enviar email de confirmação
-    const emailSent = await sendConfirmationEmail(email, name, confirmationToken);
-    if (!emailSent) {
-      logger.warn('Failed to send confirmation email, but user was created');
-    }
-
     const token = jwt.sign({ id: result.lastInsertRowid }, process.env.JWT_SECRET, {
       expiresIn: '7d',
     });
+
+    // Enviar email de confirmação (async, não bloqueia)
+    setTimeout(async () => {
+      try {
+        await sendConfirmationEmail(email, name, confirmationToken);
+      } catch (err) {
+        logger.error('Failed to send confirmation email:', err);
+      }
+    }, 0);
 
     res.status(201).json({
       token,
@@ -180,14 +183,16 @@ router.post('/forgot-password', async (req, res) => {
       'UPDATE users SET reset_token = $1, reset_expires = $2 WHERE id = $3'
     ).run(resetTokenHash, resetExpires, user.id);
 
-    // Enviar email
-    const emailSent = await sendPasswordResetEmail(user.email, user.name, resetToken);
-    if (!emailSent) {
-      logger.error('Failed to send password reset email');
-      return res.status(500).json({ error: 'Failed to send email' });
-    }
+    // Enviar email (async, não bloqueia)
+    setTimeout(async () => {
+      try {
+        await sendPasswordResetEmail(user.email, user.name, resetToken);
+      } catch (err) {
+        logger.error('Failed to send password reset email:', err);
+      }
+    }, 0);
 
-    res.json({ message: 'Password reset link sent to email' });
+    res.json({ message: 'If email exists, password reset link was sent' });
   } catch (err) {
     logger.error('Forgot password error:', err);
     res.status(500).json({ error: 'Internal server error' });
