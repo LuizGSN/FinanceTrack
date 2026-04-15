@@ -16,7 +16,8 @@ async function handleResponse(res, options = {}) {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     Toast.error('Sessão expirada. Faça login novamente.');
-    window.location.href = '/login';
+    // Dispatch custom event so App.jsx can handle redirect internally
+    window.dispatchEvent(new CustomEvent('auth:unauthorized'));
     throw new Error('Sessão expirada');
   }
 

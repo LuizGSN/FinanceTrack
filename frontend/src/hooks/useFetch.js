@@ -10,6 +10,13 @@ export const useFetch = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  const handle401 = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    Toast.error('Sessão expirada. Faça login novamente.');
+    window.dispatchEvent(new CustomEvent('auth:unauthorized'));
+  };
+
   const execute = async (url, options = {}) => {
     setLoading(true);
     setError(null);
@@ -22,6 +29,11 @@ export const useFetch = () => {
         },
         ...options,
       });
+
+      if (response.status === 401) {
+        handle401();
+        throw new Error('Sessão expirada');
+      }
 
       const data = await response.json();
 
@@ -37,7 +49,9 @@ export const useFetch = () => {
     } catch (err) {
       const errorMessage = err.message || 'An error occurred';
       setError(errorMessage);
-      Toast.error(errorMessage);
+      if (err.message !== 'Sessão expirada') {
+        Toast.error(errorMessage);
+      }
       throw err;
     } finally {
       setLoading(false);
@@ -61,6 +75,12 @@ export const useFetch = () => {
     }
 
     const response = await fetch(url, fetchOptions);
+
+    if (response.status === 401) {
+      handle401();
+      throw new Error('Sessão expirada');
+    }
+
     const data = await response.json();
 
     if (!response.ok) {

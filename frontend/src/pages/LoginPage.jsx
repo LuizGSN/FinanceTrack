@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { login, register } from '../api';
 import Logo from '../components/Logo';
 
-export default function LoginPage({ onLogin }) {
+export default function LoginPage({ onLogin, onShowForgot }) {
   const [isRegister, setIsRegister] = useState(false);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -117,6 +117,16 @@ export default function LoginPage({ onLogin }) {
                 {isRegister ? 'Entrar' : 'Criar conta'}
               </button>
             </p>
+            {!isRegister && (
+              <p className="text-center mt-3">
+                <button
+                  onClick={onShowForgot}
+                  className="text-gray-500 text-sm hover:text-[#D4A017] transition-all"
+                >
+                  Esqueceu a senha?
+                </button>
+              </p>
+            )}
           </div>
         </div>
 

@@ -12,6 +12,8 @@ import { getMe } from './api';
 function AppContent() {
   const [user, setUser] = useState(null);
   const [page, setPage] = useState('dashboard');
+  const [authPage, setAuthPage] = useState(null); // 'forgot' | 'reset' | null
+  const [resetToken, setResetToken] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
 
   useEffect(() => {
@@ -32,6 +34,16 @@ function AppContent() {
     }
   }, []);
 
+  // Handle 401 from api.js
+  useEffect(() => {
+    const handler = () => {
+      setUser(null);
+      setPage('dashboard');
+    };
+    window.addEventListener('auth:unauthorized', handler);
+    return () => window.removeEventListener('auth:unauthorized', handler);
+  }, []);
+
   function handleLogin(token, userData) {
     localStorage.setItem('token', token);
     localStorage.setItem('user', JSON.stringify(userData));
@@ -44,6 +56,27 @@ function AppContent() {
     localStorage.removeItem('user');
     setUser(null);
     setPage('dashboard');
+    setAuthPage(null);
+    setResetToken(null);
+  }
+
+  function handleShowForgot() {
+    setAuthPage('forgot');
+  }
+
+  function handleShowReset(token) {
+    setAuthPage('reset');
+    setResetToken(token);
+  }
+
+  function handleBackToLogin() {
+    setAuthPage(null);
+    setResetToken(null);
+  }
+
+  function handleResetSuccess() {
+    setAuthPage(null);
+    setResetToken(null);
   }
 
   if (authLoading) {
@@ -54,7 +87,21 @@ function AppContent() {
     );
   }
 
-  if (!user) return <LoginPage onLogin={handleLogin} />;
+  if (!user) {
+    if (authPage === 'forgot') {
+      return <ForgotPasswordPage onBackToLogin={handleBackToLogin} />;
+    }
+    if (authPage === 'reset' && resetToken) {
+      return (
+        <ResetPasswordPage
+          token={resetToken}
+          onBackToLogin={handleBackToLogin}
+          onSuccess={handleResetSuccess}
+        />
+      );
+    }
+    return <LoginPage onLogin={handleLogin} onShowForgot={handleShowForgot} />;
+  }
 
   const shared = {
     user,
@@ -66,7 +113,7 @@ function AppContent() {
 
   return (
     <div className="flex h-screen bg-white dark:bg-gray-950">
-      <SideBar 
+      <SideBar
         currentPage={page}
         onNavigate={setPage}
         user={user}
