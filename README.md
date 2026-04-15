@@ -107,25 +107,31 @@ FinanceTrack/
 │       ├── database/
 │       │   └── db.js             # Pool PostgreSQL
 │       ├── middleware/
-│       │   └── auth.js           # JWT middleware
+│       │   ├── auth.js           # JWT middleware
+│       │   └── rateLimiters.js   # Rate limiting config
 │       └── routes/
-│           ├── auth.js           # Login, registro, me
-│           └── transactions.js   # CRUD completo
+│           ├── auth.js           # Login, registro, forgot/reset password
+│           ├── transactions.js   # CRUD completo de transações
+│           └── investments.js    # CRUD de investimentos
 │
 └── frontend/
     ├── Dockerfile
     ├── nginx.conf
     ├── package.json
     └── src/
-        ├── App.jsx               # Router por estado
-        ├── api.js                # Fetch wrappers + interceptor 401
+        ├── App.jsx               # Router por estado com auth flow
+        ├── api.js                # Fetch wrappers + interceptor 401 (SPA)
         ├── config.js             # API base URL
         ├── pages/
-        │   ├── LoginPage.jsx     # Login e registro
-        │   ├── Dashboard.jsx     # CRUD + filtros + resumo
-        │   └── AnalyticsPage.jsx # Gráficos e análise
+        │   ├── LoginPage.jsx     # Login, registro e link forgot password
+        │   ├── Dashboard.jsx     # CRUD + filtros + resumo + infinite scroll
+        │   ├── AnalyticsPage.jsx # Gráficos e análise de perfil
+        │   ├── InvestmentsPage.jsx # Gestão de investimentos
+        │   ├── ForgotPasswordPage.jsx # Recuperação de senha
+        │   └── ResetPasswordPage.jsx  # Redefinição de senha
         └── components/
             ├── Header.jsx        # Navbar com navegação
+            ├── SideBar.jsx       # Menu lateral com tema
             ├── Logo.jsx          # Logo SVG (FT)
             ├── Summary.jsx       # Cards de resumo
             ├── TransactionList.jsx # Lista com ações
@@ -134,15 +140,37 @@ FinanceTrack/
 
 ## 🔌 API Endpoints
 
+### Autenticação
+
 | Método | Path | Auth | Descrição |
 |---|---|---|---|
-| `POST` | `/auth/register` | Não | Criar conta |
-| `POST` | `/auth/login` | Não | Login |
-| `GET` | `/auth/me` | Sim | Dados do usuário |
-| `GET` | `/transactions` | Sim | Listar transações (filtros: `type`, `date_from`, `date_to`) |
-| `POST` | `/transactions` | Sim | Criar transação |
-| `PUT` | `/transactions/:id` | Sim | Atualizar transação |
-| `DELETE` | `/transactions/:id` | Sim | Deletar transação |
+| `POST` | `/api/v1/auth/register` | Não | Criar conta |
+| `POST` | `/api/v1/auth/login` | Não | Login |
+| `GET` | `/api/v1/auth/me` | Sim | Dados do usuário |
+| `POST` | `/api/v1/auth/forgot-password` | Não | Solicitar recuperação de senha |
+| `GET` | `/api/v1/auth/verify-reset-token/:token` | Não | Verificar token de reset |
+| `POST` | `/api/v1/auth/reset-password` | Não | Redefinir senha |
+
+### Transações
+
+| Método | Path | Auth | Descrição |
+|---|---|---|---|
+| `GET` | `/api/v1/transactions` | Sim | Listar (filtros: `type`, `category`, `date_from`, `date_to`, `day`, `month`, `year`) |
+| `POST` | `/api/v1/transactions` | Sim | Criar transação |
+| `PUT` | `/api/v1/transactions/:id` | Sim | Atualizar transação |
+| `DELETE` | `/api/v1/transactions/:id` | Sim | Deletar transação |
+
+### Investimentos
+
+| Método | Path | Auth | Descrição |
+|---|---|---|---|
+| `GET` | `/api/v1/investments` | Sim | Listar investimentos |
+| `POST` | `/api/v1/investments` | Sim | Criar investimento |
+| `PUT` | `/api/v1/investments/:id` | Sim | Atualizar investimento |
+| `DELETE` | `/api/v1/investments/:id` | Sim | Deletar investimento |
+| `GET` | `/api/v1/investments/summary` | Sim | Resumo do portfólio |
+
+> **Compatibilidade regressiva:** Rotas sem `/api/v1/` também funcionam (`/auth`, `/transactions`).
 
 ## 🔒 Segurança
 
@@ -150,12 +178,17 @@ FinanceTrack/
 - **Helmet** para headers HTTP seguros
 - **Rate limiting** por IP/usuário com limite progressivo (5 req auth/15min, 100 req API/min, 30 req transações/min)
 - **CORS** restrito com allowed origins
-- Validação completa de inputs (email, senha, valores, datas, tamanhos, categorias)
+- Validação completa de inputs com validadores centralizados (`utils/validators.js`)
+  - Categorias permitidas por tipo: `salary`, `freelance`, `investment` (income); `food`, `transport`, `utilities` (expense)
+  - Rejeição de datas futuras, valores negativos e montantes excessivos
 - **HTTPS** em produção com certificados SSL/TLS (TLS 1.2+)
 - SQL injection protegido por **prepared statements**
-- **Interceptor 401** no frontend — redireciona ao login quando token expira
+- **Interceptor 401 SPA-compatible** — dispatch de evento customizado para logout automático sem redirect
 - **Validação de token** ao recarregar a página via `/auth/me`
 - Headers de segurança: HSTS, X-Content-Type-Options, X-Frame-Options, CSP
+- **Logging estruturado** com Winston (erros, warn, info, http, debug)
+- Reset token com hash SHA-256 e expiração de 1 hora
+- Não revela existência de email no forgot-password (segurança)
 
 ## 🌐 Deploy
 
@@ -226,6 +259,35 @@ FinanceTrack/
 - [Ver documentação completa](./IMPROVEMENTS.md)
 
 **Veja [IMPROVEMENTS.md](./IMPROVEMENTS.md) para detalhes técnicos completos e [EXAMPLES.md](./EXAMPLES.md) para exemplos de uso.**
+
+---
+
+## 📋 Changelog
+
+### v1.3.0 — Refatoração Completa (Abril 2026)
+
+#### Backend
+- **Correção crítica:** `investments.js` usava `req.user.id` (indefinido) — corrigido para `req.userId`
+- **Validação unificada:** Rotas de transação agora usam validadores centralizados de `utils/validators.js`
+- **Categorias validadas:** Transações exigem categorias permitidas por tipo (`ALLOWED_CATEGORIES`)
+- **Investimentos:** PUT agora valida dados antes de atualizar; DELETE otimizado para query única
+- **Correções numéricas:** `validateAmount` unificado para 999.999.999; `validateDescription` para 1-200 chars
+- **Timezone fix:** `validateDate` compara strings YYYY-MM-DD (sem shift de timezone)
+- **Investimentos com zero:** `initial_amount` e `current_value` agora podem ser 0
+- **Prevenção de erro:** `NULLIF` no cálculo de `gains_percent` evita divisão por zero
+- **Agregação segura:** `COALESCE` no investment summary evita NULL quando vazio
+- **Logging:** Todos os catch blocks agora têm `logger.error()`
+
+#### Frontend
+- **SPA 401:** Substituído `window.location.href='/login'` por evento customizado `auth:unauthorized`
+- **Password recovery:** Adicionado fluxo completo de forgot/reset password integrado ao App
+- **Moeda BRL:** InvestmentsPage agora usa `R$` (Intl.NumberFormat pt-BR) ao invés de `$`
+- **Dark mode:** Dashboard, AnalyticsPage, InvestmentsPage com suporte completo a tema escuro
+- **Navegação:** InvestmentsPage com botões para Dashboard e Analytics
+- **Menu limpo:** Removidos itens não-funcionais (Categorias, Configurações) do SideBar
+- **Proxy dev:** vite.config.js agora proxy `/api/v1` e `/investments`
+- **nginx:** Removido bloco server conflitante (listen 80 duplicado)
+- **Empty state:** Dashboard mostra mensagem quando não há transações
 
 ---
 
