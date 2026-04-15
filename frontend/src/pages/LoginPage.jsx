@@ -2,6 +2,11 @@ import { useState } from 'react';
 import { login, register } from '../api';
 import Logo from '../components/Logo';
 
+const GOLD = '#D4A017';
+const DARK_BG = '#050505';
+const CARD_BG = '#0a0a0a';
+const CARD_BORDER = '#1a1a1a';
+
 export default function LoginPage({ onLogin, onShowForgot }) {
   const [isRegister, setIsRegister] = useState(false);
   const [name, setName] = useState('');
@@ -30,25 +35,39 @@ export default function LoginPage({ onLogin, onShowForgot }) {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0A0A0A] via-[#1a1a1a] to-[#0A0A0A] p-4">
+    <div className="min-h-screen flex items-center justify-center p-4" style={{
+      background: `linear-gradient(135deg, ${DARK_BG} 0%, #1a1a1a 50%, ${DARK_BG} 100%)`,
+    }}>
       <div className="w-full max-w-md">
         {/* Logo e título */}
         <div className="text-center mb-8">
-          <div className="flex justify-center mb-4">
-            <Logo size={80} />
+          <div className="flex justify-center mb-6">
+            <div className="relative">
+              <Logo size={100} />
+              <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-20 h-1 rounded-full" style={{
+                background: `linear-gradient(90deg, transparent, ${GOLD}, transparent)`,
+              }}></div>
+            </div>
           </div>
-          <h1 className="text-3xl font-bold text-[#D4A017] tracking-wide">FinanceTrack</h1>
-          <p className="text-gray-400 mt-2 text-sm">Gerencie suas finanças de forma simples e elegante</p>
+          <h1 className="text-3xl font-bold tracking-wider" style={{ color: GOLD }}>FinanceTrack</h1>
+          <p className="text-gray-500 mt-2 text-sm">Gerencie suas finanças com elegância</p>
         </div>
 
         {/* Card do formulário */}
-        <div className="bg-white rounded-2xl shadow-2xl p-8">
-          <h2 className="text-2xl font-bold text-[#0A0A0A] text-center mb-6">
+        <div className="rounded-2xl p-8 shadow-2xl" style={{
+          backgroundColor: CARD_BG,
+          border: `1px solid ${CARD_BORDER}`,
+        }}>
+          <h2 className="text-2xl font-bold text-center mb-6" style={{ color: GOLD }}>
             {isRegister ? 'Criar conta' : 'Bem-vindo de volta'}
           </h2>
 
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-600 p-3 rounded-lg mb-4 text-sm">
+            <div className="p-3 rounded-lg mb-4 text-sm" style={{
+              backgroundColor: 'rgba(239, 68, 68, 0.1)',
+              color: '#ef4444',
+              border: '1px solid rgba(239, 68, 68, 0.3)',
+            }}>
               {error}
             </div>
           )}
@@ -56,36 +75,60 @@ export default function LoginPage({ onLogin, onShowForgot }) {
           <form onSubmit={handleSubmit} className="space-y-4">
             {isRegister && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Nome</label>
+                <label className="block text-sm font-medium mb-1.5" style={{ color: '#999' }}>Nome</label>
                 <input
                   type="text"
                   placeholder="Seu nome"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4A017] focus:border-transparent transition-all"
+                  className="w-full px-4 py-3 rounded-lg transition-all text-sm"
+                  style={{
+                    backgroundColor: '#111',
+                    color: '#e5e5e5',
+                    border: '1px solid #2a2a2a',
+                    outline: 'none',
+                  }}
+                  onFocus={(e) => e.currentTarget.style.borderColor = GOLD}
+                  onBlur={(e) => e.currentTarget.style.borderColor = '#2a2a2a'}
                   required
                 />
               </div>
             )}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+              <label className="block text-sm font-medium mb-1.5" style={{ color: '#999' }}>Email</label>
               <input
                 type="email"
                 placeholder="seu@email.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4A017] focus:border-transparent transition-all"
+                className="w-full px-4 py-3 rounded-lg transition-all text-sm"
+                style={{
+                  backgroundColor: '#111',
+                  color: '#e5e5e5',
+                  border: '1px solid #2a2a2a',
+                  outline: 'none',
+                }}
+                onFocus={(e) => e.currentTarget.style.borderColor = GOLD}
+                onBlur={(e) => e.currentTarget.style.borderColor = '#2a2a2a'}
                 required
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Senha</label>
+              <label className="block text-sm font-medium mb-1.5" style={{ color: '#999' }}>Senha</label>
               <input
                 type="password"
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4A017] focus:border-transparent transition-all"
+                className="w-full px-4 py-3 rounded-lg transition-all text-sm"
+                style={{
+                  backgroundColor: '#111',
+                  color: '#e5e5e5',
+                  border: '1px solid #2a2a2a',
+                  outline: 'none',
+                }}
+                onFocus={(e) => e.currentTarget.style.borderColor = GOLD}
+                onBlur={(e) => e.currentTarget.style.borderColor = '#2a2a2a'}
                 required
                 minLength="6"
               />
@@ -93,7 +136,19 @@ export default function LoginPage({ onLogin, onShowForgot }) {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-[#0A0A0A] text-[#D4A017] font-semibold p-3 rounded-lg hover:bg-[#1a1a1a] disabled:opacity-50 transition-all border border-[#D4A017] hover:shadow-lg"
+              className="w-full font-semibold py-3.5 rounded-lg transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{
+                background: `linear-gradient(135deg, ${GOLD} 0%, #b8860b 100%)`,
+                color: '#0A0A0A',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = `linear-gradient(135deg, #f5c542 0%, #d4a017 100%)`;
+                e.currentTarget.style.boxShadow = '0 6px 20px rgba(212, 160, 23, 0.3)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = `linear-gradient(135deg, ${GOLD} 0%, #b8860b 100%)`;
+                e.currentTarget.style.boxShadow = '0 4px 12px rgba(212, 160, 23, 0.2)';
+              }}
             >
               {loading ? (
                 <span className="flex items-center justify-center gap-2">
@@ -107,12 +162,15 @@ export default function LoginPage({ onLogin, onShowForgot }) {
             </button>
           </form>
 
-          <div className="mt-6 pt-6 border-t border-gray-200">
-            <p className="text-center text-gray-600 text-sm">
+          <div className="mt-6 pt-6 border-t" style={{ borderColor: CARD_BORDER }}>
+            <p className="text-center text-sm" style={{ color: '#666' }}>
               {isRegister ? 'Já tem uma conta?' : 'Não tem uma conta?'}{' '}
               <button
                 onClick={() => setIsRegister(!isRegister)}
-                className="text-[#D4A017] font-semibold hover:underline transition-all"
+                className="font-semibold transition-colors"
+                style={{ color: GOLD }}
+                onMouseEnter={(e) => e.currentTarget.style.color = '#f5c542'}
+                onMouseLeave={(e) => e.currentTarget.style.color = GOLD}
               >
                 {isRegister ? 'Entrar' : 'Criar conta'}
               </button>
@@ -121,7 +179,10 @@ export default function LoginPage({ onLogin, onShowForgot }) {
               <p className="text-center mt-3">
                 <button
                   onClick={onShowForgot}
-                  className="text-gray-500 text-sm hover:text-[#D4A017] transition-all"
+                  className="text-sm transition-colors"
+                  style={{ color: '#666' }}
+                  onMouseEnter={(e) => e.currentTarget.style.color = GOLD}
+                  onMouseLeave={(e) => e.currentTarget.style.color = '#666'}
                 >
                   Esqueceu a senha?
                 </button>
@@ -131,7 +192,7 @@ export default function LoginPage({ onLogin, onShowForgot }) {
         </div>
 
         {/* Footer */}
-        <p className="text-center text-gray-500 text-xs mt-6">
+        <p className="text-center text-gray-600 text-xs mt-6">
           © 2026 FinanceTrack. Todos os direitos reservados.
         </p>
       </div>

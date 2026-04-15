@@ -5,6 +5,7 @@ import AnalyticsPage from './pages/AnalyticsPage';
 import InvestmentsPage from './pages/InvestmentsPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
+import ConfirmEmailPage from './pages/ConfirmEmailPage';
 import SideBar from './components/SideBar';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { getMe } from './api';
@@ -12,11 +13,29 @@ import { getMe } from './api';
 function AppContent() {
   const [user, setUser] = useState(null);
   const [page, setPage] = useState('dashboard');
-  const [authPage, setAuthPage] = useState(null); // 'forgot' | 'reset' | null
+  const [authPage, setAuthPage] = useState(null);
   const [resetToken, setResetToken] = useState(null);
+  const [confirmToken, setConfirmToken] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
 
   useEffect(() => {
+    // Verificar se há token de confirmação de email na URL
+    const params = new URLSearchParams(window.location.search);
+    const emailToken = params.get('token');
+    const resetTokenParam = params.get('reset-token');
+
+    if (emailToken && window.location.pathname.includes('confirm-email')) {
+      setConfirmToken(emailToken);
+      setAuthPage('confirm-email');
+      return;
+    }
+
+    if (resetTokenParam && window.location.pathname.includes('reset-password')) {
+      setResetToken(resetTokenParam);
+      setAuthPage('reset');
+      return;
+    }
+
     const token = localStorage.getItem('token');
     if (token) {
       getMe()
@@ -34,7 +53,6 @@ function AppContent() {
     }
   }, []);
 
-  // Handle 401 from api.js
   useEffect(() => {
     const handler = () => {
       setUser(null);
@@ -81,13 +99,24 @@ function AppContent() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900">
-        <p className="text-gray-500 dark:text-gray-400">Carregando...</p>
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#050505' }}>
+        <div className="text-center">
+          <div className="inline-block w-8 h-8 border-2 rounded-full animate-spin" style={{ borderColor: '#D4A017 transparent #D4A017 transparent' }}></div>
+          <p className="text-sm mt-3" style={{ color: '#666' }}>Carregando...</p>
+        </div>
       </div>
     );
   }
 
   if (!user) {
+    if (authPage === 'confirm-email' && confirmToken) {
+      return (
+        <ConfirmEmailPage
+          token={confirmToken}
+          onBackToLogin={handleBackToLogin}
+        />
+      );
+    }
     if (authPage === 'forgot') {
       return <ForgotPasswordPage onBackToLogin={handleBackToLogin} />;
     }
@@ -112,7 +141,7 @@ function AppContent() {
   };
 
   return (
-    <div className="flex h-screen bg-white dark:bg-gray-950">
+    <div className="flex h-screen" style={{ backgroundColor: '#050505' }}>
       <SideBar
         currentPage={page}
         onNavigate={setPage}

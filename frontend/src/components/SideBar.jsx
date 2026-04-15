@@ -1,14 +1,30 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useTheme } from '../contexts/ThemeContext';
+import Logo from './Logo';
 
 export default function SideBar({ user, onLogout, currentPage, onNavigate }) {
   const [isOpen, setIsOpen] = useState(false);
   const { isDark, toggleTheme } = useTheme();
 
   const menuItems = [
-    { label: 'Dashboard', icon: '📊', page: 'dashboard' },
-    { label: 'Análise', icon: '📈', page: 'analytics' },
-    { label: 'Investimentos', icon: '💼', page: 'investments' },
+    {
+      label: 'Transações',
+      icon: 'M3 10h18M3 6h18M3 14h18M3 18h18',
+      page: 'dashboard',
+      description: 'Gerencie receitas e despesas'
+    },
+    {
+      label: 'Análise',
+      icon: 'M3 3v18h18M18 9l-6 6-3-3-4 4',
+      page: 'analytics',
+      description: 'Insights e gráficos detalhados'
+    },
+    {
+      label: 'Investimentos',
+      icon: 'M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6',
+      page: 'investments',
+      description: 'Acompanhe seu portfólio'
+    },
   ];
 
   const handleNavigate = (page) => {
@@ -20,77 +36,209 @@ export default function SideBar({ user, onLogout, currentPage, onNavigate }) {
     <>
       {/* Botão menu mobile */}
       <button
-        className="md:hidden fixed top-4 left-4 z-50 p-2 bg-emerald-600 text-white rounded-lg"
+        className="md:hidden fixed top-4 left-4 z-50 p-2.5 rounded-lg transition-all shadow-lg"
+        style={{ backgroundColor: '#D4A017', color: '#0A0A0A' }}
         onClick={() => setIsOpen(!isOpen)}
+        aria-label="Abrir menu"
       >
-        ≡
+        <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <line x1="3" y1="6" x2="21" y2="6" />
+          <line x1="3" y1="12" x2="21" y2="12" />
+          <line x1="3" y1="18" x2="21" y2="18" />
+        </svg>
       </button>
 
       {/* Overlay mobile */}
       {isOpen && (
         <div
-          className="md:hidden fixed inset-0 bg-black bg-opacity-50 z-40"
+          className="md:hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-40"
           onClick={() => setIsOpen(false)}
         />
       )}
 
       {/* Sidebar */}
       <aside
-        className={`fixed md:relative w-64 h-screen bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 transform transition-transform duration-300 md:translate-x-0 z-40 flex flex-col ${
-          isOpen ? 'translate-x-0' : '-translate-x-full'
+        className={`fixed md:sticky top-0 left-0 h-screen w-80 flex flex-col z-40 transform transition-transform duration-300 md:translate-x-0 shadow-2xl ${
+          isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
         }`}
+        style={{
+          backgroundColor: '#050505',
+          borderRight: '1px solid #1a1a1a',
+          backgroundImage: 'linear-gradient(180deg, #050505 0%, #0a0a0a 100%)'
+        }}
       >
-        {/* Logo */}
-        <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-          <div className="flex items-center gap-2">
-            <span className="text-2xl">FT</span>
-            <div className="text-sm">
-              <p className="font-semibold text-gray-900 dark:text-white">FinanceTrack</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">v1.1.0</p>
+        {/* Logo e Header */}
+        <div className="p-6" style={{ borderBottom: '1px solid #1a1a1a' }}>
+          <div className="flex items-center gap-3 mb-4">
+            <div className="relative">
+              <Logo size={56} />
+              <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-gradient-to-br from-[#D4A017] to-[#8B6914] rounded-full flex items-center justify-center">
+                <span style={{ fontSize: '8px', color: '#0A0A0A', fontWeight: 'bold' }}>✓</span>
+              </div>
             </div>
+            <div>
+              <h1 className="text-xl font-bold tracking-wider" style={{ color: '#D4A017' }}>FinanceTrack</h1>
+              <p className="text-xs" style={{ color: '#555' }}>v1.3.0</p>
+            </div>
+          </div>
+          {/* Divider decorativo */}
+          <div className="flex items-center gap-2">
+            <div className="flex-1 h-px" style={{ background: 'linear-gradient(90deg, #D4A017 0%, transparent 100%)' }}></div>
+            <div className="w-2 h-2 rounded-full" style={{ backgroundColor: '#D4A017' }}></div>
+            <div className="flex-1 h-px" style={{ background: 'linear-gradient(90deg, transparent 0%, #D4A017 100%)' }}></div>
           </div>
         </div>
 
         {/* Menu Items */}
         <nav className="flex-1 p-4 space-y-2">
-          {menuItems.map((item) => (
-            <button
-              key={item.page}
-              onClick={() => handleNavigate(item.page)}
-              className={`w-full text-left px-4 py-3 rounded-lg flex items-center gap-3 transition-colors ${
-                currentPage === item.page
-                  ? 'bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-200 font-semibold'
-                  : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-              }`}
-            >
-              <span className="text-lg">{item.icon}</span>
-              <span>{item.label}</span>
-            </button>
-          ))}
+          <p className="text-xs font-semibold uppercase tracking-wider mb-3 px-3" style={{ color: '#444' }}>Menu Principal</p>
+          {menuItems.map((item) => {
+            const isActive = currentPage === item.page;
+            return (
+              <button
+                key={item.page}
+                onClick={() => handleNavigate(item.page)}
+                className="w-full text-left px-4 py-3.5 rounded-xl flex items-start gap-3 transition-all duration-300 group"
+                style={{
+                  backgroundColor: isActive ? 'linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%)' : 'transparent',
+                  border: isActive ? '1px solid rgba(212, 160, 23, 0.3)' : '1px solid transparent',
+                  boxShadow: isActive ? '0 4px 12px rgba(212, 160, 23, 0.1)' : 'none',
+                }}
+                onMouseEnter={(e) => {
+                  if (!isActive) {
+                    e.currentTarget.style.backgroundColor = '#0f0f0f';
+                    e.currentTarget.style.borderColor = 'rgba(212, 160, 23, 0.2)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!isActive) {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                    e.currentTarget.style.borderColor = 'transparent';
+                  }
+                }}
+              >
+                {/* Icon container */}
+                <div
+                  className="p-2.5 rounded-lg transition-all duration-300 flex-shrink-0"
+                  style={{
+                    backgroundColor: isActive ? 'rgba(212, 160, 23, 0.15)' : '#0a0a0a',
+                    border: isActive ? '1px solid rgba(212, 160, 23, 0.3)' : '1px solid #1a1a1a',
+                  }}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="w-5 h-5"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke={isActive ? '#D4A017' : '#666'}
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    {item.icon}
+                  </svg>
+                </div>
+                {/* Text content */}
+                <div className="flex-1 min-w-0">
+                  <p
+                    className="text-sm font-semibold transition-colors duration-300"
+                    style={{ color: isActive ? '#D4A017' : '#999' }}
+                  >
+                    {item.label}
+                  </p>
+                  <p className="text-xs mt-0.5" style={{ color: '#555' }}>{item.description}</p>
+                </div>
+                {/* Active indicator */}
+                {isActive && (
+                  <div className="flex-shrink-0">
+                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: '#D4A017', boxShadow: '0 0 8px rgba(212, 160, 23, 0.6)' }}></div>
+                  </div>
+                )}
+              </button>
+            );
+          })}
         </nav>
 
-        {/* Tema e Usuário */}
-        <div className="p-4 border-t border-gray-200 dark:border-gray-700 space-y-3">
+        {/* Footer: Tema + Usuário + Logout */}
+        <div className="p-4 space-y-4" style={{ borderTop: '1px solid #1a1a1a' }}>
+          {/* Usuário Info */}
+          <div className="p-4 rounded-xl" style={{
+            background: 'linear-gradient(135deg, #0a0a0a 0%, #111 100%)',
+            border: '1px solid #1a1a1a',
+          }}>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold"
+                style={{
+                  background: 'linear-gradient(135deg, #D4A017 0%, #8B6914 100%)',
+                  color: '#0A0A0A'
+                }}
+              >
+                {user?.name?.charAt(0)?.toUpperCase() || 'U'}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs" style={{ color: '#555' }}>Logado como</p>
+                <p className="font-semibold text-sm truncate" style={{ color: '#D4A017' }}>{user?.name}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: '#22c55e', boxShadow: '0 0 6px rgba(34, 197, 94, 0.4)' }}></div>
+              <span className="text-xs" style={{ color: '#555' }}>Online</span>
+            </div>
+          </div>
+
           {/* Tema Toggle */}
           <button
             onClick={toggleTheme}
-            className="w-full px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors flex items-center justify-center gap-2"
+            className="w-full px-4 py-3 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 text-sm font-medium"
+            style={{
+              backgroundColor: '#0a0a0a',
+              color: '#999',
+              border: '1px solid #1a1a1a',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#1a1a1a';
+              e.currentTarget.style.borderColor = 'rgba(212, 160, 23, 0.3)';
+              e.currentTarget.style.color = '#D4A017';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = '#0a0a0a';
+              e.currentTarget.style.borderColor = '#1a1a1a';
+              e.currentTarget.style.color = '#999';
+            }}
           >
-            {isDark ? '☀️ Claro' : '🌙 Escuro'}
+            {isDark ? (
+              <>
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                Mudar para Claro
+              </>
+            ) : (
+              <>
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+                Mudar para Escuro
+              </>
+            )}
           </button>
-
-          {/* Usuário Info */}
-          <div className="px-4 py-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-            <p className="text-sm text-gray-600 dark:text-gray-300">Logado como:</p>
-            <p className="font-semibold text-gray-900 dark:text-white truncate">{user?.name}</p>
-          </div>
 
           {/* Logout */}
           <button
             onClick={onLogout}
-            className="w-full px-4 py-2 rounded-lg bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-200 hover:bg-red-200 dark:hover:bg-red-800 transition-colors"
+            className="w-full px-4 py-3 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 text-sm font-semibold"
+            style={{
+              background: 'linear-gradient(135deg, #1a0a0a 0%, #0f0505 100%)',
+              color: '#ef4444',
+              border: '1px solid rgba(239, 68, 68, 0.2)',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'linear-gradient(135deg, #2a0a0a 0%, #1a0505 100%)';
+              e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'linear-gradient(135deg, #1a0a0a 0%, #0f0505 100%)';
+              e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.2)';
+            }}
           >
-            Sair
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            Sair da Conta
           </button>
         </div>
       </aside>

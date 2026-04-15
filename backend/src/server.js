@@ -79,6 +79,9 @@ initializeDb().then(async () => {
       name TEXT NOT NULL,
       email TEXT UNIQUE NOT NULL,
       password TEXT NOT NULL,
+      confirmation_token TEXT,
+      confirmation_expires TIMESTAMP,
+      confirmed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       reset_token TEXT,
       reset_expires TIMESTAMP,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -97,9 +100,16 @@ initializeDb().then(async () => {
       id SERIAL PRIMARY KEY,
       user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
       name TEXT NOT NULL,
-      type TEXT NOT NULL CHECK(type IN ('stock', 'crypto', 'bond', 'real_state', 'fund', 'other')),
+      type TEXT NOT NULL CHECK(type IN ('stock', 'crypto', 'bond', 'real_state', 'fund', 'etf', 'option', 'future', 'other')),
+      exchange TEXT,
       initial_amount NUMERIC NOT NULL,
       current_value NUMERIC NOT NULL,
+      share_price NUMERIC,
+      current_share_price NUMERIC,
+      shares_count NUMERIC,
+      purchase_date DATE,
+      purchase_time TIME,
+      notes TEXT,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
   `);

@@ -47,9 +47,10 @@ router.use(authMiddleware);
 router.get('/', async (req, res) => {
   try {
     const investments = await prepare(
-      `SELECT id, name, type, initial_amount, current_value,
+      `SELECT id, name, type, exchange, initial_amount, current_value, share_price,
+              current_share_price, shares_count, purchase_date, purchase_time, notes,
               (current_value - initial_amount) AS gains,
-              ROUND(((current_value - initial_amount) / NULLIF(initial_amount, 0) * 100)::numeric, 2) AS gains_percent,
+              ROUND(((current_value - initial_amount) / NULLIF(initial_amount, 0) * 100), 2) AS gains_percent,
               created_at FROM investments WHERE user_id = $1 ORDER BY created_at DESC`
     ).all(req.userId);
 
@@ -63,9 +64,10 @@ router.get('/', async (req, res) => {
 // POST /investments - Criar investimento
 router.post('/', async (req, res) => {
   try {
-    const { name, type, initial_amount, current_value } = req.body;
+    const { name, type, exchange, initial_amount, current_value, share_price,
+            current_share_price, shares_count, purchase_date, purchase_time, notes } = req.body;
 
-    // Validar dados
+    // Validar dados obrigatórios
     if (!name || !type || initial_amount === undefined || current_value === undefined) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
@@ -76,9 +78,13 @@ router.post('/', async (req, res) => {
     }
 
     const result = await prepare(
-      `INSERT INTO investments (user_id, name, type, initial_amount, current_value)
-       VALUES ($1, $2, $3, $4, $5) RETURNING *`
-    ).run(req.userId, name, type, initial_amount, current_value);
+      `INSERT INTO investments (user_id, name, type, exchange, initial_amount, current_value,
+                               share_price, current_share_price, shares_count, purchase_date,
+                               purchase_time, notes)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING *`
+    ).run(req.userId, name, type, exchange || null, initial_amount, current_value,
+          share_price || null, current_share_price || null, shares_count || null,
+          purchase_date || null, purchase_time || null, notes || null);
 
     res.status(201).json(result);
   } catch (err) {
@@ -91,7 +97,8 @@ router.post('/', async (req, res) => {
 router.put('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, type, initial_amount, current_value } = req.body;
+    const { name, type, exchange, initial_amount, current_value, share_price,
+            current_share_price, shares_count, purchase_date, purchase_time, notes } = req.body;
 
     // Verificar propriedade
     const existing = await prepare(
@@ -106,8 +113,15 @@ router.put('/:id', async (req, res) => {
     const updates = {
       name: name !== undefined ? name : existing.name,
       type: type !== undefined ? type : existing.type,
+      exchange: exchange !== undefined ? exchange : existing.exchange,
       initial_amount: initial_amount !== undefined ? initial_amount : existing.initial_amount,
       current_value: current_value !== undefined ? current_value : existing.current_value,
+      share_price: share_price !== undefined ? share_price : existing.share_price,
+      current_share_price: current_share_price !== undefined ? current_share_price : existing.current_share_price,
+      shares_count: shares_count !== undefined ? shares_count : existing.shares_count,
+      purchase_date: purchase_date !== undefined ? purchase_date : existing.purchase_date,
+      purchase_time: purchase_time !== undefined ? purchase_time : existing.purchase_time,
+      notes: notes !== undefined ? notes : existing.notes,
     };
 
     const validation = validateInvestment(updates);
@@ -117,9 +131,13 @@ router.put('/:id', async (req, res) => {
 
     const result = await prepare(
       `UPDATE investments
-       SET name = $1, type = $2, initial_amount = $3, current_value = $4
-       WHERE id = $5 RETURNING *`
-    ).run(updates.name, updates.type, updates.initial_amount, updates.current_value, id);
+       SET name = $1, type = $2, exchange = $3, initial_amount = $4, current_value = $5,
+           share_price = $6, current_share_price = $7, shares_count = $8,
+           purchase_date = $9, purchase_time = $10, notes = $11
+       WHERE id = $12 RETURNING *`
+    ).run(updates.name, updates.type, updates.exchange, updates.initial_amount, updates.current_value,
+          updates.share_price, updates.current_share_price, updates.shares_count,
+          updates.purchase_date, updates.purchase_time, updates.notes, id);
 
     res.json(result);
   } catch (err) {

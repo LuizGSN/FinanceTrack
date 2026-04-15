@@ -16,29 +16,38 @@ const getConfirmationEmailTemplate = (userName, confirmationLink) => `
 <head>
   <meta charset="UTF-8">
   <style>
-    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-    .container { max-width: 500px; margin: 0 auto; border: 1px solid #ddd; border-radius: 8px; overflow: hidden; }
-    .header { background: #10B981; color: white; padding: 20px; text-align: center; }
-    .content { padding: 20px; }
-    .button { display: inline-block; background: #10B981; color: white; padding: 12px 24px; border-radius: 4px; text-decoration: none; margin: 20px 0; }
-    .footer { background: #f5f5f5; padding: 10px; text-align: center; font-size: 12px; color: #666; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #e5e5e5; background: #050505; }
+    .container { max-width: 500px; margin: 0 auto; border: 1px solid #1a1a1a; border-radius: 12px; overflow: hidden; background: #0a0a0a; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); }
+    .header { background: linear-gradient(135deg, #D4A017 0%, #b8860b 100%); color: #0A0A0A; padding: 30px 20px; text-align: center; }
+    .header h1 { margin: 0; font-size: 28px; font-weight: bold; letter-spacing: 0.5px; }
+    .content { padding: 30px 20px; }
+    .content h2 { color: #D4A017; font-size: 20px; margin-top: 0; }
+    .content p { color: #999; margin: 15px 0; }
+    .button { display: inline-block; background: linear-gradient(135deg, #D4A017 0%, #b8860b 100%); color: #0A0A0A; padding: 14px 28px; border-radius: 8px; text-decoration: none; margin: 20px 0; font-weight: bold; border: none; cursor: pointer; }
+    .button:hover { opacity: 0.9; }
+    .link-text { word-break: break-all; color: #D4A017; font-family: monospace; font-size: 12px; background: #111; padding: 10px; border-radius: 6px; border: 1px solid #1a1a1a; }
+    .footer { background: #050505; padding: 15px 20px; text-align: center; font-size: 12px; color: #555; border-top: 1px solid #1a1a1a; }
+    .highlight { color: #D4A017; font-weight: bold; }
   </style>
 </head>
-<body>
+<body style="background: #050505; margin: 0; padding: 20px;">
   <div class="container">
     <div class="header">
-      <h1>FinanceTrack</h1>
+      <h1>✓ FinanceTrack</h1>
     </div>
     <div class="content">
       <h2>Bem-vindo, ${userName}!</h2>
-      <p>Confirme seu e-mail para ativar sua conta:</p>
-      <a href="${confirmationLink}" class="button">Confirmar E-mail</a>
+      <p>Obrigado por se registrar no <span class="highlight">FinanceTrack</span>. Confirme seu e-mail para ativar sua conta:</p>
+      <center>
+        <a href="${confirmationLink}" class="button" style="text-decoration: none;">Confirmar E-mail</a>
+      </center>
       <p>Ou copie e cole este link no seu navegador:</p>
-      <p style="word-break: break-all; color: #0066cc;">${confirmationLink}</p>
-      <p style="color: #999; font-size: 12px;">Este link expira em 24 horas.</p>
+      <p class="link-text">${confirmationLink}</p>
+      <p style="color: #666; font-size: 12px;">Este link expira em 24 horas.</p>
+      <p style="color: #666; font-size: 12px; margin-top: 20px;">Se não criou uma conta em FinanceTrack, ignore este e-mail.</p>
     </div>
     <div class="footer">
-      <p>Você recebeu este e-mail porque se registrou em FinanceTrack</p>
+      <p style="margin: 0;">© 2026 FinanceTrack. Todos os direitos reservados.</p>
     </div>
   </div>
 </body>
@@ -52,31 +61,42 @@ const getPasswordResetTemplate = (userName, resetLink) => `
 <head>
   <meta charset="UTF-8">
   <style>
-    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-    .container { max-width: 500px; margin: 0 auto; border: 1px solid #ddd; border-radius: 8px; overflow: hidden; }
-    .header { background: #F59E0B; color: white; padding: 20px; text-align: center; }
-    .content { padding: 20px; }
-    .button { display: inline-block; background: #F59E0B; color: white; padding: 12px 24px; border-radius: 4px; text-decoration: none; margin: 20px 0; }
-    .footer { background: #f5f5f5; padding: 10px; text-align: center; font-size: 12px; color: #666; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #e5e5e5; background: #050505; }
+    .container { max-width: 500px; margin: 0 auto; border: 1px solid #1a1a1a; border-radius: 12px; overflow: hidden; background: #0a0a0a; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); }
+    .header { background: linear-gradient(135deg, #D4A017 0%, #b8860b 100%); color: #0A0A0A; padding: 30px 20px; text-align: center; }
+    .header h1 { margin: 0; font-size: 28px; font-weight: bold; letter-spacing: 0.5px; }
+    .content { padding: 30px 20px; }
+    .content h2 { color: #D4A017; font-size: 20px; margin-top: 0; }
+    .content p { color: #999; margin: 15px 0; }
+    .button { display: inline-block; background: linear-gradient(135deg, #D4A017 0%, #b8860b 100%); color: #0A0A0A; padding: 14px 28px; border-radius: 8px; text-decoration: none; margin: 20px 0; font-weight: bold; border: none; cursor: pointer; }
+    .button:hover { opacity: 0.9; }
+    .link-text { word-break: break-all; color: #D4A017; font-family: monospace; font-size: 12px; background: #111; padding: 10px; border-radius: 6px; border: 1px solid #1a1a1a; }
+    .warning { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); padding: 12px; border-radius: 6px; color: #ef4444; font-size: 12px; margin-top: 15px; }
+    .footer { background: #050505; padding: 15px 20px; text-align: center; font-size: 12px; color: #555; border-top: 1px solid #1a1a1a; }
+    .highlight { color: #D4A017; font-weight: bold; }
   </style>
 </head>
-<body>
+<body style="background: #050505; margin: 0; padding: 20px;">
   <div class="container">
     <div class="header">
-      <h1>FinanceTrack</h1>
+      <h1>🔒 FinanceTrack</h1>
     </div>
     <div class="content">
       <h2>Recuperação de Senha</h2>
-      <p>Olá ${userName},</p>
-      <p>Recebemos uma solicitação para redefinir sua senha. Clique no botão abaixo:</p>
-      <a href="${resetLink}" class="button">Resetar Senha</a>
+      <p>Olá <span class="highlight">${userName}</span>,</p>
+      <p>Recebemos uma solicitação para redefinir sua senha. Clique no botão abaixo para continuar:</p>
+      <center>
+        <a href="${resetLink}" class="button" style="text-decoration: none;">Redefinir Senha</a>
+      </center>
       <p>Ou copie e cole este link no seu navegador:</p>
-      <p style="word-break: break-all; color: #0066cc;">${resetLink}</p>
-      <p style="color: #999; font-size: 12px;">Este link expira em 1 hora.</p>
-      <p style="color: #999; font-size: 12px;">Se não solicitou esta recuperação, ignore este e-mail.</p>
+      <p class="link-text">${resetLink}</p>
+      <p style="color: #666; font-size: 12px;">Este link expira em 1 hora.</p>
+      <div class="warning">
+        ⚠️ Se não solicitou uma recuperação de senha, <span style="font-weight: bold;">ignore este e-mail</span>. Sua conta permanecerá segura.
+      </div>
     </div>
     <div class="footer">
-      <p>Por segurança, nunca compartilhe seus links de recuperação</p>
+      <p style="margin: 0;">© 2026 FinanceTrack. Todos os direitos reservados.</p>
     </div>
   </div>
 </body>

@@ -1,12 +1,18 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { getTransactions, deleteTransaction } from '../api';
 import { useInfiniteScroll } from '../hooks/useInfiniteScroll';
-import Header from '../components/Header';
 import Summary from '../components/Summary';
 import TransactionList from '../components/TransactionList';
 import TransactionForm from '../components/TransactionForm';
 
 const PAGE_SIZE = 20;
+
+const GOLD = '#D4A017';
+const DARK_BG = '#050505';
+const CARD_BG = '#0a0a0a';
+const CARD_BORDER = '#1a1a1a';
+const TEXT_PRIMARY = '#e5e5e5';
+const TEXT_SECONDARY = '#888';
 
 export default function Dashboard({ user, onLogout, onDashboard, onAnalytics, onInvestments }) {
   const [allTransactions, setAllTransactions] = useState([]);
@@ -41,16 +47,13 @@ export default function Dashboard({ user, onLogout, onDashboard, onAnalytics, on
     loadTransactions();
   }, [loadTransactions]);
 
-  // Infinite Scroll Logic
   useInfiniteScroll({
     ref: loadMoreRef,
     onIntersect: () => {
       if (page * PAGE_SIZE < allTransactions.length) {
         const nextPage = page + 1;
         setPage(nextPage);
-        const start = 0;
-        const end = nextPage * PAGE_SIZE;
-        setDisplayedTransactions(allTransactions.slice(start, end));
+        setDisplayedTransactions(allTransactions.slice(0, nextPage * PAGE_SIZE));
       }
     },
   });
@@ -73,39 +76,77 @@ export default function Dashboard({ user, onLogout, onDashboard, onAnalytics, on
   const hasMore = page * PAGE_SIZE < allTransactions.length;
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <Header user={user} onLogout={onLogout} onDashboard={onDashboard} onAnalytics={onAnalytics} active="dashboard" />
-
+    <div className="min-h-screen" style={{ backgroundColor: DARK_BG }}>
       {/* Barra de filtros */}
-      <div className="bg-[#0A0A0A] dark:bg-gray-800 border-t border-gray-800 dark:border-gray-700 sticky top-[52px] z-30">
-        <div className="max-w-6xl mx-auto px-4 py-2 flex flex-wrap items-center gap-1.5">
-          <span className="text-gray-500 text-xs mr-1 hidden sm:inline">Filtros:</span>
+      <div className="sticky top-0 z-30" style={{
+        backgroundColor: '#0a0a0a',
+        borderBottom: '1px solid #1a1a1a',
+        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)'
+      }}>
+        <div className="max-w-6xl mx-auto px-4 py-4 flex flex-wrap items-center gap-3">
+          <span className="text-xs font-semibold uppercase tracking-wider mr-1" style={{ color: GOLD }}>Filtros:</span>
           <select
             value={filterType}
             onChange={(e) => setFilterType(e.target.value)}
-            className="bg-[#1A1A1A] dark:bg-gray-700 text-gray-200 dark:text-gray-100 border border-gray-700 dark:border-gray-600 rounded px-2 py-1 text-xs min-w-[90px]"
+            className="rounded-lg px-3 py-2 text-xs font-medium transition-all"
+            style={{
+              backgroundColor: '#111',
+              color: TEXT_PRIMARY,
+              border: '1px solid #2a2a2a',
+              outline: 'none',
+              cursor: 'pointer',
+            }}
+            onFocus={(e) => e.currentTarget.style.borderColor = GOLD}
+            onBlur={(e) => e.currentTarget.style.borderColor = '#2a2a2a'}
           >
             <option value="">Todos</option>
             <option value="income">Receitas</option>
             <option value="expense">Despesas</option>
           </select>
-          <span className="text-gray-600 text-xs hidden sm:inline">De</span>
+          <span className="text-xs font-medium" style={{ color: '#555' }}>De</span>
           <input
             type="date"
             value={filterDateFrom}
             onChange={(e) => setFilterDateFrom(e.target.value)}
-            className="bg-[#1A1A1A] dark:bg-gray-700 text-gray-200 dark:text-gray-100 border border-gray-700 dark:border-gray-600 rounded px-2 py-1 text-xs min-w-[130px]"
+            className="rounded-lg px-3 py-2 text-xs font-medium transition-all"
+            style={{
+              backgroundColor: '#111',
+              color: TEXT_PRIMARY,
+              border: '1px solid #2a2a2a',
+              outline: 'none',
+              cursor: 'pointer',
+            }}
+            onFocus={(e) => e.currentTarget.style.borderColor = GOLD}
+            onBlur={(e) => e.currentTarget.style.borderColor = '#2a2a2a'}
           />
-          <span className="text-gray-600 text-xs hidden sm:inline">Até</span>
+          <span className="text-xs font-medium" style={{ color: '#555' }}>Até</span>
           <input
             type="date"
             value={filterDateTo}
             onChange={(e) => setFilterDateTo(e.target.value)}
-            className="bg-[#1A1A1A] dark:bg-gray-700 text-gray-200 dark:text-gray-100 border border-gray-700 dark:border-gray-600 rounded px-2 py-1 text-xs min-w-[130px]"
+            className="rounded-lg px-3 py-2 text-xs font-medium transition-all"
+            style={{
+              backgroundColor: '#111',
+              color: TEXT_PRIMARY,
+              border: '1px solid #2a2a2a',
+              outline: 'none',
+              cursor: 'pointer',
+            }}
+            onFocus={(e) => e.currentTarget.style.borderColor = GOLD}
+            onBlur={(e) => e.currentTarget.style.borderColor = '#2a2a2a'}
           />
           <button
             onClick={clearFilters}
-            className="text-gray-500 hover:text-gray-300 text-xs underline ml-1"
+            className="text-xs font-medium ml-2 transition-all px-3 py-2 rounded-lg"
+            style={{ color: '#666', backgroundColor: '#111', border: '1px solid #2a2a2a' }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = GOLD;
+              e.currentTarget.style.borderColor = GOLD;
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = '#666';
+              e.currentTarget.style.borderColor = '#2a2a2a';
+            }}
           >
             Limpar
           </button>
@@ -115,7 +156,13 @@ export default function Dashboard({ user, onLogout, onDashboard, onAnalytics, on
       {/* Conteúdo */}
       <main className="max-w-6xl mx-auto p-4 space-y-6">
         {error && (
-          <p className="bg-red-50 dark:bg-red-900 text-red-600 dark:text-red-200 p-3 rounded text-sm">{error}</p>
+          <div className="p-4 rounded-xl border" style={{
+            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+            color: '#ef4444',
+            borderColor: 'rgba(239, 68, 68, 0.3)'
+          }}>
+            {error}
+          </div>
         )}
 
         <Summary transactions={displayedTransactions} />
@@ -126,16 +173,41 @@ export default function Dashboard({ user, onLogout, onDashboard, onAnalytics, on
               setEditingTransaction(null);
               setShowForm(true);
             }}
-            className="bg-[#0A0A0A] dark:bg-gray-800 text-[#D4A017] dark:text-blue-400 font-medium px-4 py-2 rounded hover:bg-gray-900 dark:hover:bg-gray-700 text-sm border border-[#D4A017] dark:border-blue-500"
+            className="font-semibold px-6 py-3 rounded-xl text-sm transition-all border-2 shadow-lg hover:shadow-xl"
+            style={{
+              backgroundColor: '#0a0a0a',
+              color: GOLD,
+              borderColor: GOLD,
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#1a1a1a';
+              e.currentTarget.style.boxShadow = '0 6px 20px rgba(212, 160, 23, 0.2)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = '#0a0a0a';
+              e.currentTarget.style.boxShadow = '0 4px 12px rgba(212, 160, 23, 0.1)';
+            }}
           >
             + Nova Transação
           </button>
         </div>
 
         {loading ? (
-          <p className="text-center text-gray-500 dark:text-gray-400 py-8">Carregando...</p>
+          <div className="text-center py-12">
+            <div className="inline-block w-8 h-8 border-2 rounded-full animate-spin" style={{ borderColor: `${GOLD} transparent ${GOLD} transparent` }}></div>
+            <p className="text-sm mt-3" style={{ color: TEXT_SECONDARY }}>Carregando transações...</p>
+          </div>
         ) : displayedTransactions.length === 0 ? (
-          <p className="text-center text-gray-500 dark:text-gray-400 py-8">Nenhuma transação encontrada.</p>
+          <div className="text-center py-16">
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-16 h-16 mx-auto mb-4" viewBox="0 0 24 24" fill="none" stroke="#333" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="2" y="4" width="20" height="16" rx="2"/>
+              <line x1="8" y1="8" x2="16" y2="8"/>
+              <line x1="8" y1="12" x2="16" y2="12"/>
+              <line x1="8" y1="16" x2="12" y2="16"/>
+            </svg>
+            <p className="text-lg font-medium" style={{ color: TEXT_SECONDARY }}>Nenhuma transação encontrada</p>
+            <p className="text-sm mt-1" style={{ color: '#555' }}>Comece adicionando sua primeira transação!</p>
+          </div>
         ) : (
           <>
             <TransactionList
@@ -148,7 +220,11 @@ export default function Dashboard({ user, onLogout, onDashboard, onAnalytics, on
             />
             {hasMore && (
               <div ref={loadMoreRef} className="flex justify-center py-8">
-                <p className="text-gray-500 dark:text-gray-400">Carregando mais transações...</p>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full animate-bounce" style={{ backgroundColor: GOLD, animationDelay: '0ms' }}></div>
+                  <div className="w-2 h-2 rounded-full animate-bounce" style={{ backgroundColor: GOLD, animationDelay: '150ms' }}></div>
+                  <div className="w-2 h-2 rounded-full animate-bounce" style={{ backgroundColor: GOLD, animationDelay: '300ms' }}></div>
+                </div>
               </div>
             )}
           </>

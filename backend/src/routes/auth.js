@@ -48,15 +48,31 @@ router.post('/register', async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 12);
+
+    // Gerar token de confirmação de email
+    const confirmationToken = crypto.randomBytes(32).toString('hex');
+    const confirmationTokenHash = crypto.createHash('sha256').update(confirmationToken).digest('hex');
+    const tokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 horas
+
     const result = await prepare(
-      'INSERT INTO users (name, email, password) VALUES ($1, $2, $3)'
-    ).run(name, email, hashedPassword);
+      'INSERT INTO users (name, email, password, confirmation_token, confirmation_expires) VALUES ($1, $2, $3, $4, $5)'
+    ).run(name, email, hashedPassword, confirmationTokenHash, tokenExpires);
+
+    // Enviar email de confirmação
+    const emailSent = await sendConfirmationEmail(email, name, confirmationToken);
+    if (!emailSent) {
+      logger.warn('Failed to send confirmation email, but user was created');
+    }
 
     const token = jwt.sign({ id: result.lastInsertRowid }, process.env.JWT_SECRET, {
       expiresIn: '7d',
     });
 
-    res.status(201).json({ token, user: { id: result.lastInsertRowid, name, email } });
+    res.status(201).json({
+      token,
+      user: { id: result.lastInsertRowid, name, email },
+      message: 'User created successfully. Please check your email to confirm your account.'
+    });
   } catch (err) {
     logger.error('Register error:', err);
     res.status(500).json({ error: 'Internal server error' });
@@ -105,6 +121,37 @@ router.get('/me', authMiddleware, async (req, res) => {
     res.json(user);
   } catch (err) {
     logger.error('Me error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Confirm Email
+router.get('/confirm-email', async (req, res) => {
+  try {
+    const { token } = req.query;
+
+    if (!token) {
+      return res.status(400).json({ error: 'Token is required' });
+    }
+
+    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+
+    const user = await prepare(
+      'SELECT id FROM users WHERE confirmation_token = $1 AND confirmation_expires > NOW()'
+    ).get(tokenHash);
+
+    if (!user) {
+      return res.status(400).json({ error: 'Invalid or expired token' });
+    }
+
+    // Mark user as confirmed
+    await prepare(
+      'UPDATE users SET confirmed_at = NOW(), confirmation_token = NULL, confirmation_expires = NULL WHERE id = $1'
+    ).run(user.id);
+
+    res.json({ message: 'Email confirmed successfully' });
+  } catch (err) {
+    logger.error('Confirm email error:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

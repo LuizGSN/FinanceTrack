@@ -4,7 +4,6 @@ export default function TransactionList({ transactions, onEdit, onDelete }) {
   }
 
   function formatDate(dateStr) {
-    // Avoid timezone shift — the DB stores dates as YYYY-MM-DD
     if (typeof dateStr === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
       const [y, m, d] = dateStr.split('-');
       return `${d}/${m}/${y}`;
@@ -19,7 +18,7 @@ export default function TransactionList({ transactions, onEdit, onDelete }) {
   }
 
   if (transactions.length === 0) {
-    return <p className="text-center text-gray-500 py-8">Nenhuma transação encontrada.</p>;
+    return <p className="text-center py-8 text-sm" style={{ color: '#666' }}>Nenhuma transação encontrada.</p>;
   }
 
   return (
@@ -27,13 +26,14 @@ export default function TransactionList({ transactions, onEdit, onDelete }) {
       {transactions.map((t) => (
         <div
           key={t.id}
-          className="bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 border border-gray-100 hover:border-gray-200 flex justify-between items-center group"
+          className="p-4 rounded-lg flex justify-between items-center transition-all duration-200 group"
+          style={{ backgroundColor: '#141414', border: '1px solid #1f1f1f' }}
         >
           <div className="flex items-center gap-3">
             <div className={`w-1 h-10 rounded ${t.type === 'income' ? 'bg-green-500' : 'bg-red-500'}`} />
             <div>
-              <p className="font-medium text-gray-800">{t.description}</p>
-              <p className="text-sm text-gray-500">{t.category} • {formatDate(t.date)}</p>
+              <p className="font-medium" style={{ color: '#e5e5e5' }}>{t.description}</p>
+              <p className="text-sm" style={{ color: '#666' }}>{t.category} • {formatDate(t.date)}</p>
             </div>
           </div>
           <div className="flex items-center gap-4">
@@ -42,7 +42,8 @@ export default function TransactionList({ transactions, onEdit, onDelete }) {
             </p>
             <button
               onClick={() => onEdit(t)}
-              className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors opacity-70 hover:opacity-100"
+              className="p-2 rounded-lg transition-colors opacity-70 hover:opacity-100"
+              style={{ color: '#3b82f6' }}
               title="Editar"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -52,7 +53,8 @@ export default function TransactionList({ transactions, onEdit, onDelete }) {
             </button>
             <button
               onClick={() => handleDelete(t.id, t.description)}
-              className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors opacity-70 hover:opacity-100"
+              className="p-2 rounded-lg transition-colors opacity-70 hover:opacity-100"
+              style={{ color: '#ef4444' }}
               title="Excluir"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
