@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Trash2, Plus, TrendingUp, TrendingDown, Calendar, DollarSign, PieChart, ArrowUpRight } from 'lucide-react';
 import { useFetch } from '../hooks/useFetch';
+import { getInvestmentTypeLabel } from '../utils/translations';
 
 const INVESTMENT_TYPES = [
   { value: 'stock', label: 'Ação', icon: '📈' },
@@ -101,18 +102,17 @@ export default function InvestmentsPage({ user, onLogout, onDashboard, onAnalyti
         notes: formData.notes || null,
       };
 
-      let newInvestment;
       if (editingId) {
-        newInvestment = await request(`/api/v1/investments/${editingId}`, 'PUT', payload);
-        setInvestments(investments.map(inv => inv.id === editingId ? newInvestment : inv));
-        setEditingId(null);
+        await request(`/api/v1/investments/${editingId}`, 'PUT', payload);
       } else {
-        newInvestment = await request('/api/v1/investments', 'POST', payload);
-        setInvestments([...investments, newInvestment]);
+        await request('/api/v1/investments', 'POST', payload);
       }
 
+      // Recarregar lista após salvar
+      await loadInvestments();
       resetForm();
       setShowForm(false);
+      setEditingId(null);
     } catch (error) {
       if (error.message !== 'Sessão expirada') {
         console.error('Erro ao salvar investimento:', error);
@@ -267,12 +267,13 @@ export default function InvestmentsPage({ user, onLogout, onDashboard, onAnalyti
             <h2 className="text-base font-bold mb-4" style={{ color: GOLD }}>Alocação por Tipo</h2>
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
               {Object.entries(byType).map(([type, value]) => {
-                const typeInfo = INVESTMENT_TYPES.find(t => t.value === type) || { label: type, icon: '📦' };
+                const typeLabel = getInvestmentTypeLabel(type);
+                const icon = INVESTMENT_TYPES.find(t => t.value === type)?.icon || '📦';
                 const percent = totalCurrent > 0 ? ((value / totalCurrent) * 100).toFixed(1) : 0;
                 return (
                   <div key={type} className="p-3 rounded-lg text-center" style={{ backgroundColor: '#111', border: '1px solid #1a1a1a' }}>
-                    <span className="text-2xl mb-1 block">{typeInfo.icon}</span>
-                    <p className="text-xs font-medium" style={{ color: TEXT_PRIMARY }}>{typeInfo.label}</p>
+                    <span className="text-2xl mb-1 block">{icon}</span>
+                    <p className="text-xs font-medium" style={{ color: TEXT_PRIMARY }}>{typeLabel}</p>
                     <p className="text-xs" style={{ color: GOLD }}>{percent}%</p>
                     <p className="text-xs mt-1" style={{ color: TEXT_SECONDARY }}>{fmt(value)}</p>
                   </div>
@@ -564,14 +565,15 @@ export default function InvestmentsPage({ user, onLogout, onDashboard, onAnalyti
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {investments.map((inv) => {
-              const gain = inv.current_value - inv.initial_amount;
-              const gainPct = inv.initial_amount > 0 ? ((gain / inv.initial_amount) * 100).toFixed(2) : 0;
+              const gain = (inv.current_value || 0) - (inv.initial_amount || 0);
+              const gainPct = (inv.initial_amount || 0) > 0 ? ((gain / inv.initial_amount) * 100).toFixed(2) : '0.00';
               const isGain = gain >= 0;
-              const typeInfo = INVESTMENT_TYPES.find(t => t.value === inv.type) || { label: inv.type, icon: '📦' };
+              const typeLabel = getInvestmentTypeLabel(inv.type || 'other');
+              const icon = INVESTMENT_TYPES.find(t => t.value === inv.type)?.icon || '📦';
 
               // Calcular valor nas cotas
-              const sharesValue = inv.shares_count && inv.current_share_price ? inv.shares_count * inv.current_share_price : null;
-              const shareGainPct = inv.share_price && inv.current_share_price ? (((inv.current_share_price - inv.share_price) / inv.share_price) * 100).toFixed(2) : 0;
+              const sharesValue = (inv.shares_count || 0) && (inv.current_share_price || 0) ? inv.shares_count * inv.current_share_price : null;
+              const shareGainPct = (inv.share_price || 0) && (inv.current_share_price || 0) ? (((inv.current_share_price - inv.share_price) / inv.share_price) * 100).toFixed(2) : '0.00';
 
               return (
                 <div key={inv.id} className="p-5 rounded-xl" style={{
@@ -581,11 +583,11 @@ export default function InvestmentsPage({ user, onLogout, onDashboard, onAnalyti
                 }}>
                   <div className="flex justify-between items-start mb-4">
                     <div className="flex items-center gap-3">
-                      <span className="text-2xl">{typeInfo.icon}</span>
+                      <span className="text-2xl">{icon}</span>
                       <div>
                         <h3 className="font-semibold" style={{ color: TEXT_PRIMARY }}>{inv.name}</h3>
                         <div className="flex items-center gap-2 text-xs">
-                          <span style={{ color: TEXT_SECONDARY }}>{typeInfo.label}</span>
+                          <span style={{ color: TEXT_SECONDARY }}>{typeLabel}</span>
                           {inv.exchange && (
                             <>
                               <span style={{ color: '#333' }}>•</span>

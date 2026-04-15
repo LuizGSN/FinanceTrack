@@ -1,3 +1,5 @@
+import { getCategoryLabel } from '../utils/translations';
+
 export default function TransactionList({ transactions, onEdit, onDelete }) {
   function formatCurrency(value) {
     return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -33,7 +35,7 @@ export default function TransactionList({ transactions, onEdit, onDelete }) {
             <div className={`w-1 h-10 rounded ${t.type === 'income' ? 'bg-green-500' : 'bg-red-500'}`} />
             <div>
               <p className="font-medium" style={{ color: '#e5e5e5' }}>{t.description}</p>
-              <p className="text-sm" style={{ color: '#666' }}>{t.category} • {formatDate(t.date)}</p>
+              <p className="text-sm" style={{ color: '#666' }}>{getCategoryLabel(t.category)} • {formatDate(t.date)}</p>
             </div>
           </div>
           <div className="flex items-center gap-4">
