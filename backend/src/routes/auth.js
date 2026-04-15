@@ -58,6 +58,7 @@ router.post('/register', async (req, res) => {
 
     res.status(201).json({ token, user: { id: result.lastInsertRowid, name, email } });
   } catch (err) {
+    logger.error('Register error:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -92,6 +93,7 @@ router.post('/login', async (req, res) => {
 
     res.json({ token, user: { id: user.id, name: user.name, email: user.email } });
   } catch (err) {
+    logger.error('Login error:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -102,6 +104,7 @@ router.get('/me', authMiddleware, async (req, res) => {
     if (!user) return res.status(404).json({ error: 'User not found' });
     res.json(user);
   } catch (err) {
+    logger.error('Me error:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

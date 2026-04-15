@@ -22,19 +22,22 @@ function validateName(name) {
 
 function validateAmount(amount) {
   const num = parseFloat(amount);
-  return !isNaN(num) && num > 0 && num <= 999999.99;
+  return !isNaN(num) && num > 0 && num <= 999999999;
 }
 
 function validateDate(dateStr) {
-  const date = new Date(dateStr);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return false;
+  const date = new Date(dateStr + 'T00:00:00');
   if (!(date instanceof Date) || isNaN(date)) return false;
-  // Não permitir datas no futuro
-  return date <= new Date();
+  // Não permitir datas no futuro — comparar usando apenas a data (sem hora)
+  const today = new Date();
+  const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+  return dateStr <= todayStr;
 }
 
 function validateDescription(description) {
   const trimmed = (description || '').trim();
-  return trimmed.length >= 3 && trimmed.length <= 255;
+  return trimmed.length >= 1 && trimmed.length <= 200;
 }
 
 function validateTransactionType(type) {
@@ -50,11 +53,11 @@ function validateTransaction(data) {
   const errors = {};
 
   if (!data.description || !validateDescription(data.description)) {
-    errors.description = 'Description must be between 3 and 255 characters';
+    errors.description = 'Description must be between 1 and 200 characters';
   }
 
   if (!validateAmount(data.amount)) {
-    errors.amount = 'Amount must be a positive number up to 999999.99';
+    errors.amount = 'Amount must be a positive number up to 999,999,999';
   }
 
   if (!validateTransactionType(data.type)) {
@@ -67,7 +70,7 @@ function validateTransaction(data) {
   }
 
   if (!validateDate(data.date)) {
-    errors.date = 'Date must be valid and not in the future';
+    errors.date = 'Date must be valid and not in the future (YYYY-MM-DD)';
   }
 
   return {
@@ -103,12 +106,14 @@ function validateInvestment(data) {
     errors.type = `Type must be one of: ${INVESTMENT_TYPES.join(', ')}`;
   }
 
-  if (!validateAmount(data.initial_amount)) {
-    errors.initial_amount = 'Initial amount must be a positive number';
+  const initialAmt = parseFloat(data.initial_amount);
+  if (isNaN(initialAmt) || initialAmt < 0 || initialAmt > 999999999) {
+    errors.initial_amount = 'Initial amount must be a non-negative number';
   }
 
-  if (!validateAmount(data.current_value)) {
-    errors.current_value = 'Current value must be a positive number';
+  const currentVal = parseFloat(data.current_value);
+  if (isNaN(currentVal) || currentVal < 0 || currentVal > 999999999) {
+    errors.current_value = 'Current value must be a non-negative number';
   }
 
   return {

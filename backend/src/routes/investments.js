@@ -36,6 +36,7 @@ const express = require('express');
 const { prepare } = require('../database/db');
 const authMiddleware = require('../middleware/auth');
 const { validateInvestment } = require('../utils/validators');
+const logger = require('../utils/logger');
 
 const router = express.Router();
 
@@ -45,16 +46,16 @@ router.use(authMiddleware);
 // GET /investments - Listar investimentos
 router.get('/', async (req, res) => {
   try {
-    const userId = req.user.id;
     const investments = await prepare(
-      `SELECT id, name, type, initial_amount, current_value, 
+      `SELECT id, name, type, initial_amount, current_value,
               (current_value - initial_amount) AS gains,
-              ROUND(((current_value - initial_amount) / initial_amount * 100)::numeric, 2) AS gains_percent,
+              ROUND(((current_value - initial_amount) / NULLIF(initial_amount, 0) * 100)::numeric, 2) AS gains_percent,
               created_at FROM investments WHERE user_id = $1 ORDER BY created_at DESC`
-    ).all(userId);
+    ).all(req.userId);
 
     res.json(investments);
   } catch (err) {
+    logger.error('Failed to fetch investments:', err);
     res.status(500).json({ error: 'Failed to fetch investments' });
   }
 });
@@ -63,7 +64,6 @@ router.get('/', async (req, res) => {
 router.post('/', async (req, res) => {
   try {
     const { name, type, initial_amount, current_value } = req.body;
-    const userId = req.user.id;
 
     // Validar dados
     if (!name || !type || initial_amount === undefined || current_value === undefined) {
@@ -78,10 +78,11 @@ router.post('/', async (req, res) => {
     const result = await prepare(
       `INSERT INTO investments (user_id, name, type, initial_amount, current_value)
        VALUES ($1, $2, $3, $4, $5) RETURNING *`
-    ).run(userId, name, type, initial_amount, current_value);
+    ).run(req.userId, name, type, initial_amount, current_value);
 
     res.status(201).json(result);
   } catch (err) {
+    logger.error('Failed to create investment:', err);
     res.status(500).json({ error: 'Failed to create investment' });
   }
 });
@@ -91,25 +92,38 @@ router.put('/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const { name, type, initial_amount, current_value } = req.body;
-    const userId = req.user.id;
 
     // Verificar propriedade
-    const investment = await prepare(
-      'SELECT user_id FROM investments WHERE id = $1'
-    ).get(id);
+    const existing = await prepare(
+      'SELECT * FROM investments WHERE id = $1 AND user_id = $2'
+    ).get(id, req.userId);
 
-    if (!investment || investment.user_id !== userId) {
+    if (!existing) {
       return res.status(404).json({ error: 'Investment not found' });
     }
 
+    // Validar dados enviadas
+    const updates = {
+      name: name !== undefined ? name : existing.name,
+      type: type !== undefined ? type : existing.type,
+      initial_amount: initial_amount !== undefined ? initial_amount : existing.initial_amount,
+      current_value: current_value !== undefined ? current_value : existing.current_value,
+    };
+
+    const validation = validateInvestment(updates);
+    if (!validation.isValid) {
+      return res.status(400).json({ errors: validation.errors });
+    }
+
     const result = await prepare(
-      `UPDATE investments 
+      `UPDATE investments
        SET name = $1, type = $2, initial_amount = $3, current_value = $4
        WHERE id = $5 RETURNING *`
-    ).run(name, type, initial_amount, current_value, id);
+    ).run(updates.name, updates.type, updates.initial_amount, updates.current_value, id);
 
     res.json(result);
   } catch (err) {
+    logger.error('Failed to update investment:', err);
     res.status(500).json({ error: 'Failed to update investment' });
   }
 });
@@ -118,20 +132,19 @@ router.put('/:id', async (req, res) => {
 router.delete('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const userId = req.user.id;
 
-    // Verificar propriedade
-    const investment = await prepare(
-      'SELECT user_id FROM investments WHERE id = $1'
-    ).get(id);
+    // Verificar propriedade e deletar em uma operação
+    const result = await prepare(
+      'DELETE FROM investments WHERE id = $1 AND user_id = $2'
+    ).run(id, req.userId);
 
-    if (!investment || investment.user_id !== userId) {
+    if (result.changes === 0) {
       return res.status(404).json({ error: 'Investment not found' });
     }
 
-    await prepare('DELETE FROM investments WHERE id = $1').run(id);
-    res.json({ message: 'Investment deleted' });
+    res.json({ message: 'Investment deleted successfully' });
   } catch (err) {
+    logger.error('Failed to delete investment:', err);
     res.status(500).json({ error: 'Failed to delete investment' });
   }
 });
@@ -139,19 +152,18 @@ router.delete('/:id', async (req, res) => {
 // GET /investments/summary - Resumo de investimentos
 router.get('/summary', async (req, res) => {
   try {
-    const userId = req.user.id;
-
     const summary = await prepare(
-      `SELECT 
+      `SELECT
         COUNT(*) AS total_investments,
-        SUM(initial_amount) AS total_invested,
-        SUM(current_value) AS total_current_value,
-        SUM(current_value - initial_amount) AS total_gains
+        COALESCE(SUM(initial_amount), 0) AS total_invested,
+        COALESCE(SUM(current_value), 0) AS total_current_value,
+        COALESCE(SUM(current_value - initial_amount), 0) AS total_gains
        FROM investments WHERE user_id = $1`
-    ).get(userId);
+    ).get(req.userId);
 
     res.json(summary);
   } catch (err) {
+    logger.error('Failed to fetch investment summary:', err);
     res.status(500).json({ error: 'Failed to fetch summary' });
   }
 });

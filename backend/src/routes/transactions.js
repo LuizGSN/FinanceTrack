@@ -1,26 +1,18 @@
 const express = require('express');
 const { prepare } = require('../database/db');
 const authMiddleware = require('../middleware/auth');
+const {
+  validateDescription,
+  validateAmount,
+  validateDate,
+  validateCategory,
+  ALLOWED_CATEGORIES,
+} = require('../utils/validators');
+const logger = require('../utils/logger');
 
 const router = express.Router();
 
 router.use(authMiddleware);
-
-function validateDescription(desc) {
-  return typeof desc === 'string' && desc.length >= 1 && desc.length <= 200;
-}
-
-function validateAmount(amount) {
-  return typeof amount === 'number' && amount > 0 && amount <= 999999999;
-}
-
-function validateCategory(cat) {
-  return typeof cat === 'string' && cat.length >= 1 && cat.length <= 100;
-}
-
-function validateDate(dateStr) {
-  return /^\d{4}-\d{2}-\d{2}$/.test(dateStr) && !isNaN(Date.parse(dateStr + 'T00:00:00'));
-}
 
 router.get('/', async (req, res) => {
   try {
@@ -67,6 +59,7 @@ router.get('/', async (req, res) => {
     const transactions = await prepare(sql).all(...params);
     res.json(transactions);
   } catch (err) {
+    logger.error('List transactions error:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -80,7 +73,7 @@ router.post('/', async (req, res) => {
     }
 
     if (!validateDescription(description)) {
-      return res.status(400).json({ error: 'Invalid description (max 200 chars)' });
+      return res.status(400).json({ error: 'Invalid description' });
     }
     if (!validateAmount(amount)) {
       return res.status(400).json({ error: 'Invalid amount' });
@@ -88,8 +81,9 @@ router.post('/', async (req, res) => {
     if (type !== 'income' && type !== 'expense') {
       return res.status(400).json({ error: 'Type must be "income" or "expense"' });
     }
-    if (!validateCategory(category)) {
-      return res.status(400).json({ error: 'Invalid category (max 100 chars)' });
+    if (!validateCategory(category, type)) {
+      const allowed = ALLOWED_CATEGORIES[type] || [];
+      return res.status(400).json({ error: `Invalid category for ${type}. Allowed: ${allowed.join(', ')}` });
     }
     if (!validateDate(date)) {
       return res.status(400).json({ error: 'Invalid date format. Use YYYY-MM-DD' });
@@ -102,6 +96,7 @@ router.post('/', async (req, res) => {
     const transaction = await prepare('SELECT * FROM transactions WHERE id = $1').get(result.lastInsertRowid);
     res.status(201).json(transaction);
   } catch (err) {
+    logger.error('Create transaction error:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -133,8 +128,9 @@ router.put('/:id', async (req, res) => {
     if (type !== undefined && type !== 'income' && type !== 'expense') {
       return res.status(400).json({ error: 'Type must be "income" or "expense"' });
     }
-    if (category !== undefined && !validateCategory(category)) {
-      return res.status(400).json({ error: 'Invalid category' });
+    if (category !== undefined && !validateCategory(category, t)) {
+      const allowed = ALLOWED_CATEGORIES[t] || [];
+      return res.status(400).json({ error: `Invalid category for ${t}. Allowed: ${allowed.join(', ')}` });
     }
     if (date !== undefined && !validateDate(date)) {
       return res.status(400).json({ error: 'Invalid date format' });
@@ -147,6 +143,7 @@ router.put('/:id', async (req, res) => {
     const updated = await prepare('SELECT * FROM transactions WHERE id = $1').get(req.params.id);
     res.json(updated);
   } catch (err) {
+    logger.error('Update transaction error:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -163,6 +160,7 @@ router.delete('/:id', async (req, res) => {
 
     res.json({ message: 'Transaction deleted' });
   } catch (err) {
+    logger.error('Delete transaction error:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
