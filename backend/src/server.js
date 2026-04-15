@@ -6,7 +6,7 @@ const https = require('https');
 const fs = require('fs');
 const swaggerUi = require('swagger-ui-express');
 const { initializeDb, query } = require('./database/db');
-const { runMigrations } = require('./database/migrations');
+const { runMigrations } = require('./database/migrations.js');
 
 const { authLimiter, apiLimiter, transactionLimiter } = require('./middleware/rateLimiters');
 const logger = require('./utils/logger');
