@@ -9,7 +9,7 @@ import SideBar from './components/SideBar';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { getMe } from './api';
 
-export default function AppContent() {
+function AppContent() {
   const [user, setUser] = useState(null);
   const [page, setPage] = useState('dashboard');
   const [authLoading, setAuthLoading] = useState(true);
@@ -17,14 +17,12 @@ export default function AppContent() {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
-      // Validate token with backend on page reload
       getMe()
         .then((userData) => {
           setUser(userData);
           setAuthLoading(false);
         })
         .catch(() => {
-          // Token expired or invalid — clear storage
           localStorage.removeItem('token');
           localStorage.removeItem('user');
           setAuthLoading(false);
@@ -89,3 +87,4 @@ export default function App() {
       <AppContent />
     </ThemeProvider>
   );
+}
