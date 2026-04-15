@@ -6,6 +6,7 @@ const https = require('https');
 const fs = require('fs');
 const swaggerUi = require('swagger-ui-express');
 const { initializeDb, query } = require('./database/db');
+const { runMigrations } = require('./database/migrations');
 
 const { authLimiter, apiLimiter, transactionLimiter } = require('./middleware/rateLimiters');
 const logger = require('./utils/logger');
@@ -114,6 +115,9 @@ initializeDb().then(async () => {
     );
   `);
   logger.info('Database initialized');
+
+  // Run pending migrations
+  await runMigrations();
 
   // Tentar usar HTTPS se certificados forem fornecidos
   if (process.env.SSL_CERT && process.env.SSL_KEY
