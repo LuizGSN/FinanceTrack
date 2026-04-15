@@ -8,7 +8,7 @@ import TransactionForm from '../components/TransactionForm';
 
 const PAGE_SIZE = 20;
 
-export default function Dashboard({ user, onLogout, onDashboard, onAnalytics }) {
+export default function Dashboard({ user, onLogout, onDashboard, onAnalytics, onInvestments }) {
   const [allTransactions, setAllTransactions] = useState([]);
   const [displayedTransactions, setDisplayedTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -134,6 +134,8 @@ export default function Dashboard({ user, onLogout, onDashboard, onAnalytics }) 
 
         {loading ? (
           <p className="text-center text-gray-500 dark:text-gray-400 py-8">Carregando...</p>
+        ) : displayedTransactions.length === 0 ? (
+          <p className="text-center text-gray-500 dark:text-gray-400 py-8">Nenhuma transação encontrada.</p>
         ) : (
           <>
             <TransactionList

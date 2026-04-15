@@ -7,6 +7,8 @@ export default defineConfig({
     proxy: {
       '/auth': 'http://localhost:3000',
       '/transactions': 'http://localhost:3000',
+      '/api/v1': 'http://localhost:3000',
+      '/investments': 'http://localhost:3000',
     },
   },
 });

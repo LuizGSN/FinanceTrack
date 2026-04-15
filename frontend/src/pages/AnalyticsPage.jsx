@@ -72,10 +72,10 @@ export default function AnalyticsPage({ user, onLogout, onDashboard, onAnalytics
   });
   const topCatEntry = Object.entries(catAmount).sort((a, b) => b[1] - a[1])[0];
 
-  if (loading) return <p className="text-center py-12">Carregando analytics...</p>;
+  if (loading) return <p className="text-center py-12 text-gray-500 dark:text-gray-400">Carregando analytics...</p>;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <Header user={user} onLogout={onLogout} onDashboard={onDashboard} onAnalytics={onAnalytics} active="analytics" />
 
       <main className="max-w-4xl mx-auto p-4 space-y-6">
@@ -88,28 +88,28 @@ export default function AnalyticsPage({ user, onLogout, onDashboard, onAnalytics
           <>
             {/* Profile cards */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="bg-white p-4 rounded-lg shadow-sm">
-                <p className="text-sm text-gray-500">Total transações</p>
-                <p className="text-xl font-bold">{totalTx}</p>
+              <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm">
+                <p className="text-sm text-gray-500 dark:text-gray-400">Total transações</p>
+                <p className="text-xl font-bold text-gray-900 dark:text-white">{totalTx}</p>
               </div>
-              <div className="bg-white p-4 rounded-lg shadow-sm">
-                <p className="text-sm text-gray-500">Maior categoria</p>
-                <p className="text-xl font-bold">{topCategory}</p>
+              <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm">
+                <p className="text-sm text-gray-500 dark:text-gray-400">Maior categoria</p>
+                <p className="text-xl font-bold text-gray-900 dark:text-white">{topCategory}</p>
               </div>
-              <div className="bg-white p-4 rounded-lg shadow-sm">
-                <p className="text-sm text-gray-500">Média/despesa</p>
-                <p className="text-xl font-bold">{fmt(avgExpense)}</p>
+              <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm">
+                <p className="text-sm text-gray-500 dark:text-gray-400">Média/despesa</p>
+                <p className="text-xl font-bold text-gray-900 dark:text-white">{fmt(avgExpense)}</p>
               </div>
-              <div className="bg-white p-4 rounded-lg shadow-sm">
-                <p className="text-sm text-gray-500">Média/receita</p>
-                <p className="text-xl font-bold">{fmt(avgIncome)}</p>
+              <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm">
+                <p className="text-sm text-gray-500 dark:text-gray-400">Média/receita</p>
+                <p className="text-xl font-bold text-gray-900 dark:text-white">{fmt(avgIncome)}</p>
               </div>
             </div>
 
             {/* Profile analysis */}
-            <div className="bg-white p-6 rounded-lg shadow-sm">
-              <h2 className="text-lg font-bold mb-4">Análise de Perfil</h2>
-              <div className="space-y-3 text-sm text-gray-700">
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
+              <h2 className="text-lg font-bold mb-4 text-gray-900 dark:text-white">Análise de Perfil</h2>
+              <div className="space-y-3 text-sm text-gray-700 dark:text-gray-300">
                 <p>
                   Você tem <strong>{expenseCount} despesa(s)</strong> e{' '}
                   <strong>{incomeCount} receita(s)</strong>.
@@ -133,8 +133,8 @@ export default function AnalyticsPage({ user, onLogout, onDashboard, onAnalytics
             </div>
 
             {/* Pie chart: expenses by category */}
-            <div className="bg-white p-6 rounded-lg shadow-sm">
-              <h2 className="text-lg font-bold mb-4">Gastos por Categoria</h2>
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
+              <h2 className="text-lg font-bold mb-4 text-gray-900 dark:text-white">Gastos por Categoria</h2>
               <ResponsiveContainer width="100%" height={300}>
                 <PieChart>
                   <Pie
@@ -162,8 +162,8 @@ export default function AnalyticsPage({ user, onLogout, onDashboard, onAnalytics
             </div>
 
             {/* Comparison bar */}
-            <div className="bg-white p-6 rounded-lg shadow-sm">
-              <h2 className="text-lg font-bold mb-4">Receitas vs Despesas</h2>
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
+              <h2 className="text-lg font-bold mb-4 text-gray-900 dark:text-white">Receitas vs Despesas</h2>
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={comparisonData}>
                   <CartesianGrid strokeDasharray="3 3" />
@@ -185,8 +185,8 @@ export default function AnalyticsPage({ user, onLogout, onDashboard, onAnalytics
 
             {/* Timeline */}
             {timelineData.length >= 2 && (
-              <div className="bg-white p-6 rounded-lg shadow-sm">
-                <h2 className="text-lg font-bold mb-4">Evolução Mensal</h2>
+              <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
+                <h2 className="text-lg font-bold mb-4 text-gray-900 dark:text-white">Evolução Mensal</h2>
                 <ResponsiveContainer width="100%" height={300}>
                   <LineChart data={timelineData}>
                     <CartesianGrid strokeDasharray="3 3" />

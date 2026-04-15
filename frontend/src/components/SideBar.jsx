@@ -9,8 +9,6 @@ export default function SideBar({ user, onLogout, currentPage, onNavigate }) {
     { label: 'Dashboard', icon: '📊', page: 'dashboard' },
     { label: 'Análise', icon: '📈', page: 'analytics' },
     { label: 'Investimentos', icon: '💼', page: 'investments' },
-    { label: 'Categorias', icon: '🏷️', page: 'categories' },
-    { label: 'Configurações', icon: '⚙️', page: 'settings' },
   ];
 
   const handleNavigate = (page) => {
