@@ -7,6 +7,26 @@ const CARD_BORDER = '#1f1f1f';
 const TEXT_PRIMARY = '#e5e5e5';
 const TEXT_SECONDARY = '#888';
 
+// Categorias por tipo (deve corresponder ao backend)
+const EXPENSE_CATEGORIES = [
+  { value: 'food', label: '🍔 Alimentação' },
+  { value: 'transport', label: '🚗 Transporte' },
+  { value: 'utilities', label: '💡 Utilidades' },
+  { value: 'entertainment', label: '🎬 Entretenimento' },
+  { value: 'healthcare', label: '🏥 Saúde' },
+  { value: 'shopping', label: '🛍️ Compras' },
+  { value: 'education', label: '📚 Educação' },
+  { value: 'other_expense', label: '📦 Outro' },
+];
+
+const INCOME_CATEGORIES = [
+  { value: 'salary', label: '💰 Salário' },
+  { value: 'freelance', label: '💼 Freelance' },
+  { value: 'investment', label: '📈 Investimento' },
+  { value: 'bonus', label: '🎁 Bônus' },
+  { value: 'other_income', label: '📦 Outro' },
+];
+
 export default function TransactionForm({ transaction, onClose, onSave }) {
   const isEditing = !!transaction;
   const [description, setDescription] = useState(transaction?.description || '');
@@ -24,6 +44,14 @@ export default function TransactionForm({ transaction, onClose, onSave }) {
   );
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  // Reset category when type changes (if not editing)
+  const handleTypeChange = (newType) => {
+    setType(newType);
+    if (!isEditing) {
+      setCategory('');
+    }
+  };
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -76,7 +104,7 @@ export default function TransactionForm({ transaction, onClose, onSave }) {
           />
           <select
             value={type}
-            onChange={(e) => setType(e.target.value)}
+            onChange={(e) => handleTypeChange(e.target.value)}
             className="w-full p-3 rounded text-sm"
             style={inputStyle}
             required
@@ -84,15 +112,20 @@ export default function TransactionForm({ transaction, onClose, onSave }) {
             <option value="expense">Despesa</option>
             <option value="income">Receita</option>
           </select>
-          <input
-            type="text"
-            placeholder="Categoria (ex: food, transport)"
+          <select
             value={category}
             onChange={(e) => setCategory(e.target.value)}
             className="w-full p-3 rounded text-sm"
             style={inputStyle}
             required
-          />
+          >
+            <option value="">Selecione uma categoria</option>
+            {(type === 'income' ? INCOME_CATEGORIES : EXPENSE_CATEGORIES).map((cat) => (
+              <option key={cat.value} value={cat.value}>
+                {cat.label}
+              </option>
+            ))}
+          </select>
           <input
             type="date"
             value={date}
