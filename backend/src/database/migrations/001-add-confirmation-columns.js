@@ -12,7 +12,19 @@ async function up() {
     `).run();
 
     await prepare(`
-      ALTER TABLE users ADD COLUMN IF NOT EXISTS confirmed_at TIMESTAMP DEFAULT NOW();
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS confirmed_at TIMESTAMP;
+    `).run();
+
+    // Garantir que novos registros não sejam confirmados automaticamente
+    await prepare(`
+      ALTER TABLE users ALTER COLUMN confirmed_at DROP DEFAULT;
+    `).run();
+
+    // Corrigir usuários pendentes que eventualmente tenham nascido confirmados por padrão
+    await prepare(`
+      UPDATE users
+      SET confirmed_at = NULL
+      WHERE confirmation_token IS NOT NULL;
     `).run();
 
     // Adicionar colunas de reset de senha se não existirem

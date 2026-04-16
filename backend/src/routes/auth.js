@@ -55,24 +55,19 @@ router.post('/register', async (req, res) => {
     const tokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 horas
 
     const result = await prepare(
-      'INSERT INTO users (name, email, password, confirmation_token, confirmation_expires) VALUES ($1, $2, $3, $4, $5)'
+      `INSERT INTO users
+         (name, email, password, confirmation_token, confirmation_expires, confirmed_at)
+       VALUES ($1, $2, $3, $4, $5, NULL)`
     ).run(name, email, hashedPassword, confirmationTokenHash, tokenExpires);
 
-    const token = jwt.sign({ id: result.lastInsertRowid }, process.env.JWT_SECRET, {
-      expiresIn: '7d',
-    });
-
-    // Enviar email de confirmação (async, não bloqueia)
-    setTimeout(async () => {
-      try {
-        await sendConfirmationEmail(email, name, confirmationToken);
-      } catch (err) {
-        logger.error('Failed to send confirmation email:', err);
-      }
-    }, 0);
+    const emailSent = await sendConfirmationEmail(email, name, confirmationToken);
+    if (!emailSent) {
+      // Evita criar conta "presa" sem e-mail de confirmação
+      await prepare('DELETE FROM users WHERE id = $1 AND confirmed_at IS NULL').run(result.lastInsertRowid);
+      return res.status(503).json({ error: 'Unable to send confirmation email. Please try again.' });
+    }
 
     res.status(201).json({
-      token,
       user: { id: result.lastInsertRowid, name, email },
       message: 'User created successfully. Please check your email to confirm your account.'
     });
@@ -145,7 +140,10 @@ router.get('/confirm-email', async (req, res) => {
     const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
 
     const user = await prepare(
-      'SELECT id FROM users WHERE confirmation_token = $1 AND confirmation_expires > NOW()'
+      `SELECT id FROM users
+       WHERE confirmation_token = $1
+         AND confirmation_expires > NOW()
+         AND confirmed_at IS NULL`
     ).get(tokenHash);
 
     if (!user) {
@@ -188,14 +186,14 @@ router.post('/forgot-password', async (req, res) => {
       'UPDATE users SET reset_token = $1, reset_expires = $2 WHERE id = $3'
     ).run(resetTokenHash, resetExpires, user.id);
 
-    // Enviar email (async, não bloqueia)
-    setTimeout(async () => {
-      try {
-        await sendPasswordResetEmail(user.email, user.name, resetToken);
-      } catch (err) {
-        logger.error('Failed to send password reset email:', err);
-      }
-    }, 0);
+    const resetEmailSent = await sendPasswordResetEmail(user.email, user.name, resetToken);
+    if (!resetEmailSent) {
+      logger.error('Failed to send password reset email');
+      // Limpar token para não deixar token ativo sem envio de e-mail
+      await prepare(
+        'UPDATE users SET reset_token = NULL, reset_expires = NULL WHERE id = $1'
+      ).run(user.id);
+    }
 
     res.json({ message: 'If email exists, password reset link was sent' });
   } catch (err) {

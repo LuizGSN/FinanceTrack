@@ -15,6 +15,11 @@ const authRoutes = require('./routes/auth');
 const transactionRoutes = require('./routes/transactions');
 const investmentRoutes = require('./routes/investments');
 
+if (!process.env.JWT_SECRET || process.env.JWT_SECRET.trim().length < 32) {
+  logger.error('JWT_SECRET is missing or too short. Set a strong secret (min 32 chars).');
+  process.exit(1);
+}
+
 const app = express();
 
 // Seguranca
@@ -35,6 +40,8 @@ app.use(express.json({ limit: '10kb' }));
 app.use('/api/v1/auth', authLimiter);
 app.use('/api/v1/', apiLimiter);
 app.use('/api/v1/transactions', transactionLimiter);
+app.use('/auth', authLimiter);
+app.use('/transactions', apiLimiter, transactionLimiter);
 
 // Rotas com versionamento
 app.use('/api/v1/auth', authRoutes);
@@ -82,7 +89,7 @@ initializeDb().then(async () => {
       password TEXT NOT NULL,
       confirmation_token TEXT,
       confirmation_expires TIMESTAMP,
-      confirmed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      confirmed_at TIMESTAMP,
       reset_token TEXT,
       reset_expires TIMESTAMP,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
