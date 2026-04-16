@@ -5,6 +5,27 @@ import Logo from './Logo';
 export default function SideBar({ user, onLogout, currentPage, onNavigate }) {
   const [isOpen, setIsOpen] = useState(false);
   const { isDark, toggleTheme } = useTheme();
+  const colors = isDark
+    ? {
+      panelBg: '#050505',
+      panelGradient: 'linear-gradient(180deg, #050505 0%, #0a0a0a 100%)',
+      border: '#1a1a1a',
+      textMuted: '#555',
+      cardBg: 'linear-gradient(135deg, #0a0a0a 0%, #111 100%)',
+      buttonBg: '#0a0a0a',
+      hoverBg: '#1a1a1a',
+      menuHover: '#0f0f0f',
+    }
+    : {
+      panelBg: '#ffffff',
+      panelGradient: 'linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)',
+      border: '#e2e8f0',
+      textMuted: '#64748b',
+      cardBg: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+      buttonBg: '#f8fafc',
+      hoverBg: '#eef2ff',
+      menuHover: '#f1f5f9',
+    };
 
   const menuItems = [
     {
@@ -62,13 +83,13 @@ export default function SideBar({ user, onLogout, currentPage, onNavigate }) {
           isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
         }`}
         style={{
-          backgroundColor: '#050505',
-          borderRight: '1px solid #1a1a1a',
-          backgroundImage: 'linear-gradient(180deg, #050505 0%, #0a0a0a 100%)'
+          backgroundColor: colors.panelBg,
+          borderRight: `1px solid ${colors.border}`,
+          backgroundImage: colors.panelGradient
         }}
       >
         {/* Logo e Header */}
-        <div className="p-6" style={{ borderBottom: '1px solid #1a1a1a' }}>
+        <div className="p-6" style={{ borderBottom: `1px solid ${colors.border}` }}>
           <div className="flex items-center gap-3 mb-4">
             <div className="relative">
               <Logo size={56} />
@@ -78,7 +99,7 @@ export default function SideBar({ user, onLogout, currentPage, onNavigate }) {
             </div>
             <div>
               <h1 className="text-xl font-bold tracking-wider" style={{ color: '#D4A017' }}>FinanceTrack</h1>
-              <p className="text-xs" style={{ color: '#555' }}>v1.3.0</p>
+              <p className="text-xs" style={{ color: colors.textMuted }}>v1.3.0</p>
             </div>
           </div>
           {/* Divider decorativo */}
@@ -91,7 +112,7 @@ export default function SideBar({ user, onLogout, currentPage, onNavigate }) {
 
         {/* Menu Items */}
         <nav className="flex-1 p-4 space-y-2">
-          <p className="text-xs font-semibold uppercase tracking-wider mb-3 px-3" style={{ color: '#444' }}>Menu Principal</p>
+          <p className="text-xs font-semibold uppercase tracking-wider mb-3 px-3" style={{ color: colors.textMuted }}>Menu Principal</p>
           {menuItems.map((item) => {
             const isActive = currentPage === item.page;
             return (
@@ -100,19 +121,19 @@ export default function SideBar({ user, onLogout, currentPage, onNavigate }) {
                 onClick={() => handleNavigate(item.page)}
                 className="w-full text-left px-4 py-3.5 rounded-xl flex items-start gap-3 transition-all duration-300 group"
                 style={{
-                  backgroundColor: isActive ? 'linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%)' : 'transparent',
+                  background: isActive ? (isDark ? 'linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%)' : 'linear-gradient(135deg, #fff 0%, #f8fafc 100%)') : 'transparent',
                   border: isActive ? '1px solid rgba(212, 160, 23, 0.3)' : '1px solid transparent',
                   boxShadow: isActive ? '0 4px 12px rgba(212, 160, 23, 0.1)' : 'none',
                 }}
                 onMouseEnter={(e) => {
                   if (!isActive) {
-                    e.currentTarget.style.backgroundColor = '#0f0f0f';
+                    e.currentTarget.style.background = colors.menuHover;
                     e.currentTarget.style.borderColor = 'rgba(212, 160, 23, 0.2)';
                   }
                 }}
                 onMouseLeave={(e) => {
                   if (!isActive) {
-                    e.currentTarget.style.backgroundColor = 'transparent';
+                    e.currentTarget.style.background = 'transparent';
                     e.currentTarget.style.borderColor = 'transparent';
                   }
                 }}
@@ -121,8 +142,8 @@ export default function SideBar({ user, onLogout, currentPage, onNavigate }) {
                 <div
                   className="p-2.5 rounded-lg transition-all duration-300 flex-shrink-0"
                   style={{
-                    backgroundColor: isActive ? 'rgba(212, 160, 23, 0.15)' : '#0a0a0a',
-                    border: isActive ? '1px solid rgba(212, 160, 23, 0.3)' : '1px solid #1a1a1a',
+                    backgroundColor: isActive ? 'rgba(212, 160, 23, 0.15)' : colors.buttonBg,
+                    border: isActive ? '1px solid rgba(212, 160, 23, 0.3)' : `1px solid ${colors.border}`,
                   }}
                 >
                   <svg
@@ -130,7 +151,7 @@ export default function SideBar({ user, onLogout, currentPage, onNavigate }) {
                     className="w-5 h-5"
                     viewBox="0 0 24 24"
                     fill="none"
-                    stroke={isActive ? '#D4A017' : '#666'}
+                    stroke={isActive ? '#D4A017' : (isDark ? '#666' : '#475569')}
                     strokeWidth="2"
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -142,11 +163,11 @@ export default function SideBar({ user, onLogout, currentPage, onNavigate }) {
                 <div className="flex-1 min-w-0">
                   <p
                     className="text-sm font-semibold transition-colors duration-300"
-                    style={{ color: isActive ? '#D4A017' : '#999' }}
+                    style={{ color: isActive ? '#D4A017' : (isDark ? '#999' : '#334155') }}
                   >
                     {item.label}
                   </p>
-                  <p className="text-xs mt-0.5" style={{ color: '#555' }}>{item.description}</p>
+                  <p className="text-xs mt-0.5" style={{ color: colors.textMuted }}>{item.description}</p>
                 </div>
                 {/* Active indicator */}
                 {isActive && (
@@ -160,11 +181,11 @@ export default function SideBar({ user, onLogout, currentPage, onNavigate }) {
         </nav>
 
         {/* Footer: Tema + Usuário + Logout */}
-        <div className="p-4 space-y-4" style={{ borderTop: '1px solid #1a1a1a' }}>
+        <div className="p-4 space-y-4" style={{ borderTop: `1px solid ${colors.border}` }}>
           {/* Usuário Info */}
           <div className="p-4 rounded-xl" style={{
-            background: 'linear-gradient(135deg, #0a0a0a 0%, #111 100%)',
-            border: '1px solid #1a1a1a',
+            background: colors.cardBg,
+            border: `1px solid ${colors.border}`,
           }}>
             <div className="flex items-center gap-3 mb-2">
               <div className="w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold"
@@ -176,13 +197,13 @@ export default function SideBar({ user, onLogout, currentPage, onNavigate }) {
                 {user?.name?.charAt(0)?.toUpperCase() || 'U'}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-xs" style={{ color: '#555' }}>Logado como</p>
+                <p className="text-xs" style={{ color: colors.textMuted }}>Logado como</p>
                 <p className="font-semibold text-sm truncate" style={{ color: '#D4A017' }}>{user?.name}</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full" style={{ backgroundColor: '#22c55e', boxShadow: '0 0 6px rgba(34, 197, 94, 0.4)' }}></div>
-              <span className="text-xs" style={{ color: '#555' }}>Online</span>
+              <span className="text-xs" style={{ color: colors.textMuted }}>Online</span>
             </div>
           </div>
 
@@ -191,19 +212,19 @@ export default function SideBar({ user, onLogout, currentPage, onNavigate }) {
             onClick={toggleTheme}
             className="w-full px-4 py-3 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 text-sm font-medium"
             style={{
-              backgroundColor: '#0a0a0a',
-              color: '#999',
-              border: '1px solid #1a1a1a',
+              backgroundColor: colors.buttonBg,
+              color: isDark ? '#999' : '#334155',
+              border: `1px solid ${colors.border}`,
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = '#1a1a1a';
+              e.currentTarget.style.backgroundColor = colors.hoverBg;
               e.currentTarget.style.borderColor = 'rgba(212, 160, 23, 0.3)';
               e.currentTarget.style.color = '#D4A017';
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = '#0a0a0a';
-              e.currentTarget.style.borderColor = '#1a1a1a';
-              e.currentTarget.style.color = '#999';
+              e.currentTarget.style.backgroundColor = colors.buttonBg;
+              e.currentTarget.style.borderColor = colors.border;
+              e.currentTarget.style.color = isDark ? '#999' : '#334155';
             }}
           >
             {isDark ? (

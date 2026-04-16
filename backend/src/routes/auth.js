@@ -50,15 +50,23 @@ router.post('/register', async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 12);
 
     const result = await prepare(
-      'INSERT INTO users (name, email, password) VALUES ($1, $2, $3)'
-    ).run(name, email, hashedPassword);
+      'INSERT INTO users (name, email, password, confirmation_token, confirmation_expires) VALUES ($1, $2, $3, $4, $5)'
+    ).run(name, email, hashedPassword, confirmationTokenHash, tokenExpires);
 
     const token = jwt.sign({ id: result.lastInsertRowid }, process.env.JWT_SECRET, {
       expiresIn: '7d',
     });
 
+    // Enviar email de confirmação (async, não bloqueia)
+    setTimeout(async () => {
+      try {
+        await sendConfirmationEmail(email, name, confirmationToken);
+      } catch (err) {
+        logger.error('Failed to send confirmation email:', err);
+      }
+    }, 0);
+
     res.status(201).json({
-      token,
       user: { id: result.lastInsertRowid, name, email },
       message: 'User created successfully'
     });
@@ -114,6 +122,37 @@ router.get('/me', authMiddleware, async (req, res) => {
   }
 });
 
+// Confirm Email
+router.get('/confirm-email', async (req, res) => {
+  try {
+    const { token } = req.query;
+
+    if (!token) {
+      return res.status(400).json({ error: 'Token is required' });
+    }
+
+    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+
+    const user = await prepare(
+      'SELECT id FROM users WHERE confirmation_token = $1 AND confirmation_expires > NOW()'
+    ).get(tokenHash);
+
+    if (!user) {
+      return res.status(400).json({ error: 'Invalid or expired token' });
+    }
+
+    // Mark user as confirmed
+    await prepare(
+      'UPDATE users SET confirmed_at = NOW(), confirmation_token = NULL, confirmation_expires = NULL WHERE id = $1'
+    ).run(user.id);
+
+    res.json({ message: 'Email confirmed successfully' });
+  } catch (err) {
+    logger.error('Confirm email error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // Forgot Password
 router.post('/forgot-password', async (req, res) => {
   try {
@@ -138,14 +177,14 @@ router.post('/forgot-password', async (req, res) => {
       'UPDATE users SET reset_token = $1, reset_expires = $2 WHERE id = $3'
     ).run(resetTokenHash, resetExpires, user.id);
 
-    // Enviar email (async, não bloqueia)
-    setTimeout(async () => {
-      try {
-        await sendPasswordResetEmail(user.email, user.name, resetToken);
-      } catch (err) {
-        logger.error('Failed to send password reset email:', err);
-      }
-    }, 0);
+    const resetEmailSent = await sendPasswordResetEmail(user.email, user.name, resetToken);
+    if (!resetEmailSent) {
+      logger.error('Failed to send password reset email');
+      // Limpar token para não deixar token ativo sem envio de e-mail
+      await prepare(
+        'UPDATE users SET reset_token = NULL, reset_expires = NULL WHERE id = $1'
+      ).run(user.id);
+    }
 
     res.json({ message: 'If email exists, password reset link was sent' });
   } catch (err) {

@@ -30,17 +30,44 @@ router.get('/', async (req, res) => {
       conditions.push(`category = $${idx++}`);
       params.push(category);
     }
-    if (day) {
-      conditions.push(`EXTRACT(DAY FROM date) = $${idx++}`);
-      params.push(parseInt(day, 10));
+    if (day && /^\d{1,2}$/.test(String(day))) {
+      const parsedDay = parseInt(day, 10);
+      if (parsedDay >= 1 && parsedDay <= 31) {
+        conditions.push(`EXTRACT(DAY FROM date) = $${idx++}`);
+        params.push(parsedDay);
+      }
     }
-    if (month) {
-      conditions.push(`EXTRACT(MONTH FROM date) = $${idx++}`);
-      params.push(parseInt(month, 10));
+    if (month && /^\d{1,2}$/.test(String(month))) {
+      const parsedMonth = parseInt(month, 10);
+      if (parsedMonth >= 1 && parsedMonth <= 12) {
+        conditions.push(`EXTRACT(MONTH FROM date) = $${idx++}`);
+        params.push(parsedMonth);
+      }
     }
-    if (year) {
-      conditions.push(`EXTRACT(YEAR FROM date) = $${idx++}`);
-      params.push(parseInt(year, 10));
+    if (year && /^\d{4}$/.test(String(year))) {
+      const parsedYear = parseInt(year, 10);
+      if (parsedYear >= 1900 && parsedYear <= 2100) {
+        conditions.push(`EXTRACT(YEAR FROM date) = $${idx++}`);
+        params.push(parsedYear);
+      }
+    }
+    if (day && !/^\d{1,2}$/.test(String(day))) {
+      return res.status(400).json({ error: 'Invalid day filter' });
+    }
+    if (month && !/^\d{1,2}$/.test(String(month))) {
+      return res.status(400).json({ error: 'Invalid month filter' });
+    }
+    if (year && !/^\d{4}$/.test(String(year))) {
+      return res.status(400).json({ error: 'Invalid year filter' });
+    }
+    if (day && /^\d{1,2}$/.test(String(day)) && (parseInt(day, 10) < 1 || parseInt(day, 10) > 31)) {
+      return res.status(400).json({ error: 'Day must be between 1 and 31' });
+    }
+    if (month && /^\d{1,2}$/.test(String(month)) && (parseInt(month, 10) < 1 || parseInt(month, 10) > 12)) {
+      return res.status(400).json({ error: 'Month must be between 1 and 12' });
+    }
+    if (year && /^\d{4}$/.test(String(year)) && (parseInt(year, 10) < 1900 || parseInt(year, 10) > 2100)) {
+      return res.status(400).json({ error: 'Year must be between 1900 and 2100' });
     }
     if (date && /^\d{4}-\d{2}-\d{2}$/.test(date)) {
       conditions.push(`date = $${idx++}`);

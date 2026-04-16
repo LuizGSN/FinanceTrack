@@ -25,7 +25,7 @@
  *                 type: string
  *               type:
  *                 type: string
- *                 enum: [stock, crypto, bond, real_state, fund, other]
+ *                 enum: [stock, crypto, bond, real_state, fund, etf, option, future, other]
  *               initial_amount:
  *                 type: number
  *               current_value:
@@ -81,12 +81,15 @@ router.post('/', async (req, res) => {
       `INSERT INTO investments (user_id, name, type, exchange, initial_amount, current_value,
                                share_price, current_share_price, shares_count, purchase_date,
                                purchase_time, notes)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING *`
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`
     ).run(req.userId, name, type, exchange || null, initial_amount, current_value,
           share_price || null, current_share_price || null, shares_count || null,
           purchase_date || null, purchase_time || null, notes || null);
 
-    res.status(201).json(result);
+    const created = await prepare('SELECT * FROM investments WHERE id = $1 AND user_id = $2')
+      .get(result.lastInsertRowid, req.userId);
+
+    res.status(201).json(created);
   } catch (err) {
     logger.error('Failed to create investment:', err);
     res.status(500).json({ error: 'Failed to create investment' });
@@ -129,17 +132,20 @@ router.put('/:id', async (req, res) => {
       return res.status(400).json({ errors: validation.errors });
     }
 
-    const result = await prepare(
+    await prepare(
       `UPDATE investments
        SET name = $1, type = $2, exchange = $3, initial_amount = $4, current_value = $5,
            share_price = $6, current_share_price = $7, shares_count = $8,
            purchase_date = $9, purchase_time = $10, notes = $11
-       WHERE id = $12 RETURNING *`
+       WHERE id = $12 AND user_id = $13`
     ).run(updates.name, updates.type, updates.exchange, updates.initial_amount, updates.current_value,
           updates.share_price, updates.current_share_price, updates.shares_count,
-          updates.purchase_date, updates.purchase_time, updates.notes, id);
+          updates.purchase_date, updates.purchase_time, updates.notes, id, req.userId);
 
-    res.json(result);
+    const updated = await prepare('SELECT * FROM investments WHERE id = $1 AND user_id = $2')
+      .get(id, req.userId);
+
+    res.json(updated);
   } catch (err) {
     logger.error('Failed to update investment:', err);
     res.status(500).json({ error: 'Failed to update investment' });

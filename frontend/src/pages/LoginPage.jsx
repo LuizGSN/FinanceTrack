@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { login, register } from '../api';
 import Logo from '../components/Logo';
+import { useTheme } from '../contexts/ThemeContext';
 
 const GOLD = '#D4A017';
 const DARK_BG = '#050505';
@@ -8,6 +9,7 @@ const CARD_BG = '#0a0a0a';
 const CARD_BORDER = '#1a1a1a';
 
 export default function LoginPage({ onLogin, onShowForgot }) {
+  const { isDark } = useTheme();
   const [isRegister, setIsRegister] = useState(false);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -15,6 +17,12 @@ export default function LoginPage({ onLogin, onShowForgot }) {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [registrationSuccess, setRegistrationSuccess] = useState(false);
+  const [registeredEmail, setRegisteredEmail] = useState('');
+  const background = isDark
+    ? `linear-gradient(135deg, ${DARK_BG} 0%, #1a1a1a 50%, ${DARK_BG} 100%)`
+    : 'linear-gradient(135deg, #f8fafc 0%, #eef2ff 50%, #f8fafc 100%)';
+  const cardBg = isDark ? CARD_BG : '#ffffff';
+  const cardBorder = isDark ? CARD_BORDER : '#e2e8f0';
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -22,6 +30,7 @@ export default function LoginPage({ onLogin, onShowForgot }) {
     setLoading(true);
     try {
       if (isRegister) {
+        setRegisteredEmail(email);
         await register(name, email, password);
         setRegistrationSuccess(true);
         setName('');
@@ -41,12 +50,12 @@ export default function LoginPage({ onLogin, onShowForgot }) {
   if (registrationSuccess) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4" style={{
-        background: `linear-gradient(135deg, ${DARK_BG} 0%, #1a1a1a 50%, ${DARK_BG} 100%)`,
+        background,
       }}>
         <div className="w-full max-w-md">
           <div className="rounded-2xl p-8 shadow-2xl" style={{
-            backgroundColor: CARD_BG,
-            border: `1px solid ${CARD_BORDER}`,
+            backgroundColor: cardBg,
+            border: `1px solid ${cardBorder}`,
           }}>
             <div className="text-center">
               <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style={{
@@ -60,7 +69,7 @@ export default function LoginPage({ onLogin, onShowForgot }) {
                 Conta Criada com Sucesso!
               </h2>
               <p className="text-gray-400 mb-6 text-sm">
-                Seu cadastro foi concluído e sua conta já está pronta para uso.
+                Um email de confirmação foi enviado para <span style={{ color: GOLD }}>{email}</span>
               </p>
               <div className="p-4 rounded-lg mb-6" style={{
                 backgroundColor: 'rgba(34, 197, 94, 0.1)',
@@ -100,7 +109,7 @@ export default function LoginPage({ onLogin, onShowForgot }) {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4" style={{
-      background: `linear-gradient(135deg, ${DARK_BG} 0%, #1a1a1a 50%, ${DARK_BG} 100%)`,
+      background,
     }}>
       <div className="w-full max-w-md">
         {/* Logo e título */}
@@ -119,8 +128,8 @@ export default function LoginPage({ onLogin, onShowForgot }) {
 
         {/* Card do formulário */}
         <div className="rounded-2xl p-8 shadow-2xl" style={{
-          backgroundColor: CARD_BG,
-          border: `1px solid ${CARD_BORDER}`,
+          backgroundColor: cardBg,
+          border: `1px solid ${cardBorder}`,
         }}>
           <h2 className="text-2xl font-bold text-center mb-6" style={{ color: GOLD }}>
             {isRegister ? 'Criar conta' : 'Bem-vindo'}
