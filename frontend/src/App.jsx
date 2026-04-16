@@ -7,10 +7,11 @@ import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import ConfirmEmailPage from './pages/ConfirmEmailPage';
 import SideBar from './components/SideBar';
-import { ThemeProvider } from './contexts/ThemeContext';
+import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import { getMe } from './api';
 
 function AppContent() {
+  const { isDark } = useTheme();
   const [user, setUser] = useState(null);
   const [page, setPage] = useState('dashboard');
   const [authPage, setAuthPage] = useState(null);
@@ -101,10 +102,10 @@ function AppContent() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#050505' }}>
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: isDark ? '#050505' : '#f8fafc' }}>
         <div className="text-center">
           <div className="inline-block w-8 h-8 border-2 rounded-full animate-spin" style={{ borderColor: '#D4A017 transparent #D4A017 transparent' }}></div>
-          <p className="text-sm mt-3" style={{ color: '#666' }}>Carregando...</p>
+          <p className="text-sm mt-3" style={{ color: isDark ? '#666' : '#475569' }}>Carregando...</p>
         </div>
       </div>
     );
@@ -143,7 +144,7 @@ function AppContent() {
   };
 
   return (
-    <div className="flex h-screen" style={{ backgroundColor: '#050505' }}>
+    <div className="flex h-screen" style={{ backgroundColor: isDark ? '#050505' : '#f8fafc' }}>
       <SideBar
         currentPage={page}
         onNavigate={setPage}

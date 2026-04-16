@@ -7,7 +7,14 @@ function authMiddleware(req, res, next) {
     return res.status(401).json({ error: 'Token not provided' });
   }
 
-  const [, token] = authHeader.split(' ');
+  const [scheme, token] = authHeader.split(' ');
+  if (scheme !== 'Bearer' || !token) {
+    return res.status(401).json({ error: 'Invalid authorization format' });
+  }
+
+  if (!process.env.JWT_SECRET) {
+    return res.status(500).json({ error: 'Authentication is not configured' });
+  }
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);

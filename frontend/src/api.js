@@ -185,7 +185,7 @@ export async function resetPassword(token, newPassword) {
 
 export async function confirmEmail(token) {
   try {
-    const res = await fetch(`${BASE_URL}/api/v1/auth/confirm-email?token=${token}`, {
+    const res = await fetch(`${BASE_URL}/api/v1/auth/confirm-email?token=${encodeURIComponent(token)}`, {
       headers: getHeaders(),
     });
     return handleResponse(res, { showError: false });

@@ -13,10 +13,11 @@ export default function ConfirmEmailPage({ token, onBackToLogin }) {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    let redirectTimer = null;
     if (!token) {
       setError('Token não fornecido');
       setLoading(false);
-      return;
+      return undefined;
     }
 
     const confirmEmail = async () => {
@@ -25,7 +26,7 @@ export default function ConfirmEmailPage({ token, onBackToLogin }) {
         setSuccess(true);
         setLoading(false);
         // Auto-redirect após 3 segundos
-        setTimeout(() => {
+        redirectTimer = setTimeout(() => {
           onBackToLogin();
         }, 3000);
       } catch (err) {
@@ -35,6 +36,9 @@ export default function ConfirmEmailPage({ token, onBackToLogin }) {
     };
 
     confirmEmail();
+    return () => {
+      if (redirectTimer) clearTimeout(redirectTimer);
+    };
   }, [token, onBackToLogin]);
 
   return (

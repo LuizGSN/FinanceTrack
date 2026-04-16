@@ -5,7 +5,7 @@ const ALLOWED_CATEGORIES = {
 };
 
 const TRANSACTION_TYPES = ['income', 'expense'];
-const INVESTMENT_TYPES = ['stock', 'crypto', 'bond', 'real_state', 'fund', 'other'];
+const INVESTMENT_TYPES = ['stock', 'crypto', 'bond', 'real_state', 'fund', 'etf', 'option', 'future', 'other'];
 
 function validateEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) && email.length <= 255;
