@@ -5,7 +5,6 @@ import AnalyticsPage from './pages/AnalyticsPage';
 import InvestmentsPage from './pages/InvestmentsPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
-import ConfirmEmailPage from './pages/ConfirmEmailPage';
 import SideBar from './components/SideBar';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { getMe } from './api';
@@ -15,21 +14,13 @@ function AppContent() {
   const [page, setPage] = useState('dashboard');
   const [authPage, setAuthPage] = useState(null);
   const [resetToken, setResetToken] = useState(null);
-  const [confirmToken, setConfirmToken] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
 
   useEffect(() => {
-    // Verificar se há token de confirmação de email na URL
+    // Verificar se há token de reset de senha na URL
     const params = new URLSearchParams(window.location.search);
     const urlToken = params.get('token');
     const urlType = params.get('type');
-
-    if (urlToken && urlType === 'confirm') {
-      setConfirmToken(urlToken);
-      setAuthPage('confirm-email');
-      setAuthLoading(false);
-      return;
-    }
 
     if (urlToken && urlType === 'reset') {
       setResetToken(urlToken);
@@ -111,14 +102,6 @@ function AppContent() {
   }
 
   if (!user) {
-    if (authPage === 'confirm-email' && confirmToken) {
-      return (
-        <ConfirmEmailPage
-          token={confirmToken}
-          onBackToLogin={handleBackToLogin}
-        />
-      );
-    }
     if (authPage === 'forgot') {
       return <ForgotPasswordPage onBackToLogin={handleBackToLogin} />;
     }

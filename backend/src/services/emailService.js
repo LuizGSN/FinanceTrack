@@ -9,8 +9,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// Template de e-mail de confirmação
-const getConfirmationEmailTemplate = (userName, confirmationLink) => `
+const getPasswordResetTemplate = (userName, resetLink) => `
 <!DOCTYPE html>
 <html>
 <head>
@@ -36,15 +35,17 @@ const getConfirmationEmailTemplate = (userName, confirmationLink) => `
       <h1>✓ FinanceTrack</h1>
     </div>
     <div class="content">
-      <h2>Bem-vindo, ${userName}!</h2>
-      <p>Obrigado por se registrar no <span class="highlight">FinanceTrack</span>. Confirme seu e-mail para ativar sua conta:</p>
+      <h2>Recuperação de Senha</h2>
+      <p>Olá <span class="highlight">${userName}</span>,</p>
       <center>
-        <a href="${confirmationLink}" class="button" style="text-decoration: none;">Confirmar E-mail</a>
+        <a href="${resetLink}" class="button" style="text-decoration: none;">Redefinir Senha</a>
       </center>
       <p>Ou copie e cole este link no seu navegador:</p>
-      <p class="link-text">${confirmationLink}</p>
-      <p style="color: #666; font-size: 12px;">Este link expira em 24 horas.</p>
-      <p style="color: #666; font-size: 12px; margin-top: 20px;">Se não criou uma conta em FinanceTrack, ignore este e-mail.</p>
+      <p class="link-text">${resetLink}</p>
+      <p style="color: #666; font-size: 12px;">Este link expira em 1 hora.</p>
+      <div class="warning">
+        ⚠️ Se não solicitou uma recuperação de senha, <span style="font-weight: bold;">ignore este e-mail</span>. Sua conta permanecerá segura.
+      </div>
     </div>
     <div class="footer">
       <p style="margin: 0;">© 2026 FinanceTrack. Todos os direitos reservados.</p>
@@ -55,7 +56,7 @@ const getConfirmationEmailTemplate = (userName, confirmationLink) => `
 `;
 
 // Template de recuperação de senha
-const getPasswordResetTemplate = (userName, resetLink) => `
+const _unusedPasswordResetTemplate = (userName, resetLink) => `
 <!DOCTYPE html>
 <html>
 <head>
@@ -103,24 +104,6 @@ const getPasswordResetTemplate = (userName, resetLink) => `
 </html>
 `;
 
-// Enviar e-mail de confirmação
-async function sendConfirmationEmail(email, userName, confirmationToken) {
-  const confirmationLink = `${process.env.FRONTEND_URL}/?token=${confirmationToken}&type=confirm`;
-
-  try {
-    await transporter.sendMail({
-      from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
-      to: email,
-      subject: 'Confirme seu e-mail - FinanceTrack',
-      html: getConfirmationEmailTemplate(userName, confirmationLink),
-    });
-    return true;
-  } catch (error) {
-    console.error('Erro ao enviar e-mail de confirmação:', error);
-    return false;
-  }
-}
-
 // Enviar e-mail de recuperação de senha
 async function sendPasswordResetEmail(email, userName, resetToken) {
   const resetLink = `${process.env.FRONTEND_URL}/?token=${resetToken}&type=reset`;
@@ -140,6 +123,5 @@ async function sendPasswordResetEmail(email, userName, resetToken) {
 }
 
 module.exports = {
-  sendConfirmationEmail,
   sendPasswordResetEmail,
 };

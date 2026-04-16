@@ -32,11 +32,7 @@ export default function LoginPage({ onLogin, onShowForgot }) {
         onLogin(token, user);
       }
     } catch (err) {
-      if (err.status === 403) {
-        setError('Confirme seu email antes de entrar. Verifique sua caixa de entrada.');
-      } else {
-        setError(err.message);
-      }
+      setError(err.message);
     } finally {
       setLoading(false);
     }
@@ -64,20 +60,17 @@ export default function LoginPage({ onLogin, onShowForgot }) {
                 Conta Criada com Sucesso!
               </h2>
               <p className="text-gray-400 mb-6 text-sm">
-                Um email de confirmação foi enviado para <span style={{ color: GOLD }}>{email}</span>
+                Seu cadastro foi concluído e sua conta já está pronta para uso.
               </p>
               <div className="p-4 rounded-lg mb-6" style={{
                 backgroundColor: 'rgba(34, 197, 94, 0.1)',
                 border: '1px solid rgba(34, 197, 94, 0.3)',
               }}>
                 <p style={{ color: '#22c55e', fontSize: '14px', marginBottom: '8px' }}>
-                  ✓ Verifique sua caixa de entrada
+                  ✓ Cadastro concluído
                 </p>
                 <p style={{ color: '#999', fontSize: '12px', marginBottom: '4px' }}>
-                  Clique no link de confirmação para ativar sua conta
-                </p>
-                <p style={{ color: '#666', fontSize: '12px' }}>
-                  Não recebeu? Verifique a pasta de spam
+                  Você pode voltar para o login e entrar imediatamente.
                 </p>
               </div>
               <button

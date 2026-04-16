@@ -52,7 +52,7 @@ export async function register(name, email, password) {
       body: JSON.stringify({ name, email, password }),
     });
     const data = await handleResponse(res, { showError: false });
-    Toast.success('Conta criada! Verifique seu email para confirmar o cadastro.');
+    Toast.success('Conta criada com sucesso!');
     return data;
   } catch (err) {
     throw err;
@@ -178,17 +178,6 @@ export async function resetPassword(token, newPassword) {
     const data = await handleResponse(res, { showError: false });
     Toast.success('Senha redefinida com sucesso!');
     return data;
-  } catch (err) {
-    throw err;
-  }
-}
-
-export async function confirmEmail(token) {
-  try {
-    const res = await fetch(`${BASE_URL}/api/v1/auth/confirm-email?token=${token}`, {
-      headers: getHeaders(),
-    });
-    return handleResponse(res, { showError: false });
   } catch (err) {
     throw err;
   }
