@@ -30,8 +30,9 @@ export default function LoginPage({ onLogin, onShowForgot }) {
     setLoading(true);
     try {
       if (isRegister) {
-        setRegisteredEmail(email);
+        const submittedEmail = email;
         await register(name, email, password);
+        setRegisteredEmail(submittedEmail);
         setRegistrationSuccess(true);
         setName('');
         setEmail('');
@@ -69,17 +70,17 @@ export default function LoginPage({ onLogin, onShowForgot }) {
                 Conta Criada com Sucesso!
               </h2>
               <p className="text-gray-400 mb-6 text-sm">
-                Um email de confirmação foi enviado para <span style={{ color: GOLD }}>{email}</span>
+                Um e-mail de confirmacao foi enviado para <span style={{ color: GOLD }}>{registeredEmail}</span>
               </p>
               <div className="p-4 rounded-lg mb-6" style={{
                 backgroundColor: 'rgba(34, 197, 94, 0.1)',
                 border: '1px solid rgba(34, 197, 94, 0.3)',
               }}>
                 <p style={{ color: '#22c55e', fontSize: '14px', marginBottom: '8px' }}>
-                  ✓ Cadastro concluído
+                  Cadastro concluido
                 </p>
                 <p style={{ color: '#999', fontSize: '12px', marginBottom: '4px' }}>
-                  Você pode voltar para o login e entrar imediatamente.
+                  Confirme seu e-mail antes de fazer login.
                 </p>
               </div>
               <button
@@ -112,7 +113,7 @@ export default function LoginPage({ onLogin, onShowForgot }) {
       background,
     }}>
       <div className="w-full max-w-md">
-        {/* Logo e título */}
+        {/* Logo e titulo */}
         <div className="text-center mb-8">
           <div className="flex justify-center mb-6">
             <div className="relative">
@@ -123,10 +124,10 @@ export default function LoginPage({ onLogin, onShowForgot }) {
             </div>
           </div>
           <h1 className="text-3xl font-bold tracking-wider" style={{ color: GOLD }}>FinanceTrack</h1>
-          <p className="text-gray-500 mt-2 text-sm">Gerencie suas finanças com elegância</p>
+          <p className="text-gray-500 mt-2 text-sm">Gerencie suas financas com elegancia</p>
         </div>
 
-        {/* Card do formulário */}
+        {/* Card do formulario */}
         <div className="rounded-2xl p-8 shadow-2xl" style={{
           backgroundColor: cardBg,
           border: `1px solid ${cardBorder}`,
@@ -190,7 +191,7 @@ export default function LoginPage({ onLogin, onShowForgot }) {
               <label className="block text-sm font-medium mb-1.5" style={{ color: '#999' }}>Senha</label>
               <input
                 type="password"
-                placeholder="••••••••"
+                placeholder="********"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full px-4 py-3 rounded-lg transition-all text-sm"
@@ -237,7 +238,7 @@ export default function LoginPage({ onLogin, onShowForgot }) {
 
           <div className="mt-6 pt-6 border-t" style={{ borderColor: CARD_BORDER }}>
             <p className="text-center text-sm" style={{ color: '#666' }}>
-              {isRegister ? 'Já tem uma conta?' : 'Não tem uma conta?'}{' '}
+              {isRegister ? 'Ja tem uma conta?' : 'Nao tem uma conta?'}{' '}
               <button
                 onClick={() => setIsRegister(!isRegister)}
                 className="font-semibold transition-colors"
@@ -266,7 +267,7 @@ export default function LoginPage({ onLogin, onShowForgot }) {
 
         {/* Footer */}
         <p className="text-center text-gray-600 text-xs mt-6">
-          © 2026 FinanceTrack. Todos os direitos reservados.
+          (c) 2026 FinanceTrack. Todos os direitos reservados.
         </p>
       </div>
     </div>

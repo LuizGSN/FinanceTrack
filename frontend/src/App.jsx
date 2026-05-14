@@ -5,6 +5,7 @@ import AnalyticsPage from './pages/AnalyticsPage';
 import InvestmentsPage from './pages/InvestmentsPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
+import ConfirmEmailPage from './pages/ConfirmEmailPage';
 import SideBar from './components/SideBar';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import { getMe } from './api';
@@ -15,6 +16,7 @@ function AppContent() {
   const [page, setPage] = useState('dashboard');
   const [authPage, setAuthPage] = useState(null);
   const [resetToken, setResetToken] = useState(null);
+  const [confirmationToken, setConfirmationToken] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
 
   useEffect(() => {
@@ -23,9 +25,15 @@ function AppContent() {
     const urlToken = params.get('token');
     const urlType = params.get('type');
 
-    if (urlToken && urlType === 'reset') {
-      setResetToken(urlToken);
-      setAuthPage('reset');
+    if (urlToken && ['confirm', 'reset'].includes(urlType)) {
+      if (urlType === 'confirm') {
+        setConfirmationToken(urlToken);
+        setAuthPage('confirm');
+      } else {
+        setResetToken(urlToken);
+        setAuthPage('reset');
+      }
+      window.history.replaceState({}, document.title, window.location.pathname);
       setAuthLoading(false);
       return;
     }
@@ -70,20 +78,17 @@ function AppContent() {
     setPage('dashboard');
     setAuthPage(null);
     setResetToken(null);
+    setConfirmationToken(null);
   }
 
   function handleShowForgot() {
     setAuthPage('forgot');
   }
 
-  function handleShowReset(token) {
-    setAuthPage('reset');
-    setResetToken(token);
-  }
-
   function handleBackToLogin() {
     setAuthPage(null);
     setResetToken(null);
+    setConfirmationToken(null);
   }
 
   function handleResetSuccess() {
@@ -114,6 +119,9 @@ function AppContent() {
           onSuccess={handleResetSuccess}
         />
       );
+    }
+    if (authPage === 'confirm' && confirmationToken) {
+      return <ConfirmEmailPage token={confirmationToken} onBackToLogin={handleBackToLogin} />;
     }
     return <LoginPage onLogin={handleLogin} onShowForgot={handleShowForgot} />;
   }
