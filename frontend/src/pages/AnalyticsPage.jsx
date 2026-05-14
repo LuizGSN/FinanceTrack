@@ -230,7 +230,7 @@ export default function AnalyticsPage({ user, onLogout, onDashboard, onAnalytics
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: DARK_BG }}>
+      <div className="ft-page min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="inline-block w-10 h-10 border-2 rounded-full animate-spin" style={{ borderColor: `${GOLD} transparent ${GOLD} transparent` }}></div>
           <p className="text-sm mt-4" style={{ color: TEXT_SECONDARY }}>Carregando analytics...</p>
@@ -240,8 +240,8 @@ export default function AnalyticsPage({ user, onLogout, onDashboard, onAnalytics
   }
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: DARK_BG }}>
-      <main className="max-w-6xl mx-auto p-4 space-y-6">
+    <div className="ft-page">
+      <main className="max-w-6xl mx-auto p-4 md:p-6 space-y-6">
         {/* Header */}
         <div>
           <h1 className="text-2xl font-bold" style={{ color: GOLD }}>Análise de Perfil</h1>

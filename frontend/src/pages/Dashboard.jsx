@@ -76,19 +76,18 @@ export default function Dashboard({ user, onLogout, onDashboard, onAnalytics, on
   const hasMore = page * PAGE_SIZE < allTransactions.length;
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: DARK_BG }}>
+    <div className="ft-page">
       {/* Barra de filtros */}
-      <div className="sticky top-0 z-30" style={{
-        backgroundColor: '#0a0a0a',
-        borderBottom: '1px solid #1a1a1a',
-        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)'
+      <div className="sticky top-0 z-30 backdrop-blur-xl" style={{
+        backgroundColor: 'rgba(5, 5, 5, 0.84)',
+        borderBottom: '1px solid rgba(255,255,255,0.08)'
       }}>
         <div className="max-w-6xl mx-auto px-4 py-4 flex flex-wrap items-center gap-3">
           <span className="text-xs font-semibold uppercase tracking-wider mr-1" style={{ color: GOLD }}>Filtros:</span>
           <select
             value={filterType}
             onChange={(e) => setFilterType(e.target.value)}
-            className="rounded-lg px-3 py-2 text-xs font-medium transition-all"
+            className="ft-input rounded-lg px-3 py-2 text-xs font-medium transition-all"
             style={{
               backgroundColor: '#111',
               color: TEXT_PRIMARY,
@@ -108,7 +107,7 @@ export default function Dashboard({ user, onLogout, onDashboard, onAnalytics, on
             type="date"
             value={filterDateFrom}
             onChange={(e) => setFilterDateFrom(e.target.value)}
-            className="rounded-lg px-3 py-2 text-xs font-medium transition-all"
+            className="ft-input rounded-lg px-3 py-2 text-xs font-medium transition-all"
             style={{
               backgroundColor: '#111',
               color: TEXT_PRIMARY,
@@ -124,7 +123,7 @@ export default function Dashboard({ user, onLogout, onDashboard, onAnalytics, on
             type="date"
             value={filterDateTo}
             onChange={(e) => setFilterDateTo(e.target.value)}
-            className="rounded-lg px-3 py-2 text-xs font-medium transition-all"
+            className="ft-input rounded-lg px-3 py-2 text-xs font-medium transition-all"
             style={{
               backgroundColor: '#111',
               color: TEXT_PRIMARY,
@@ -137,8 +136,8 @@ export default function Dashboard({ user, onLogout, onDashboard, onAnalytics, on
           />
           <button
             onClick={clearFilters}
-            className="text-xs font-medium ml-2 transition-all px-3 py-2 rounded-lg"
-            style={{ color: '#666', backgroundColor: '#111', border: '1px solid #2a2a2a' }}
+            className="ft-button-secondary text-xs font-medium ml-2 transition-all px-3 py-2 rounded-lg"
+            style={{}}
             onMouseEnter={(e) => {
               e.currentTarget.style.color = GOLD;
               e.currentTarget.style.borderColor = GOLD;
@@ -154,7 +153,7 @@ export default function Dashboard({ user, onLogout, onDashboard, onAnalytics, on
       </div>
 
       {/* Conteúdo */}
-      <main className="max-w-6xl mx-auto p-4 space-y-6">
+      <main className="max-w-6xl mx-auto p-4 md:p-6 space-y-6">
         {error && (
           <div className="p-4 rounded-xl border" style={{
             backgroundColor: 'rgba(239, 68, 68, 0.1)',
@@ -167,25 +166,23 @@ export default function Dashboard({ user, onLogout, onDashboard, onAnalytics, on
 
         <Summary transactions={displayedTransactions} />
 
-        <div className="flex items-center">
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <p className="ft-kicker">Transacoes</p>
+            <h1 className="mt-1 text-2xl font-bold" style={{ color: TEXT_PRIMARY }}>Fluxo financeiro</h1>
+          </div>
           <button
             onClick={() => {
               setEditingTransaction(null);
               setShowForm(true);
             }}
-            className="font-semibold px-6 py-3 rounded-xl text-sm transition-all border-2 shadow-lg hover:shadow-xl"
-            style={{
-              backgroundColor: '#0a0a0a',
-              color: GOLD,
-              borderColor: GOLD,
-            }}
+            className="ft-button-primary font-semibold px-5 py-3 rounded-xl text-sm"
+            style={{}}
             onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = '#1a1a1a';
-              e.currentTarget.style.boxShadow = '0 6px 20px rgba(212, 160, 23, 0.2)';
+              e.currentTarget.style.filter = 'brightness(1.04)';
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = '#0a0a0a';
-              e.currentTarget.style.boxShadow = '0 4px 12px rgba(212, 160, 23, 0.1)';
+              e.currentTarget.style.filter = 'none';
             }}
           >
             + Nova Transação

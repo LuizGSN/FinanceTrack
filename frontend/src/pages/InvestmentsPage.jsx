@@ -183,8 +183,8 @@ export default function InvestmentsPage({ user, onLogout, onDashboard, onAnalyti
   }, {});
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: DARK_BG }}>
-      <div className="max-w-6xl mx-auto p-4 space-y-6">
+    <div className="ft-page">
+      <div className="max-w-6xl mx-auto p-4 md:p-6 space-y-6">
         {/* Header */}
         <div className="flex justify-between items-center flex-wrap gap-4">
           <div>

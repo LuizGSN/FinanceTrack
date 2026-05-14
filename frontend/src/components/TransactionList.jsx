@@ -20,55 +20,63 @@ export default function TransactionList({ transactions, onEdit, onDelete }) {
   }
 
   if (transactions.length === 0) {
-    return <p className="text-center py-8 text-sm" style={{ color: '#666' }}>Nenhuma transação encontrada.</p>;
+    return <p className="text-center py-8 text-sm" style={{ color: '#8d887c' }}>Nenhuma transacao encontrada.</p>;
   }
 
   return (
-    <div className="space-y-2">
-      {transactions.map((t) => (
-        <div
-          key={t.id}
-          className="p-4 rounded-lg flex justify-between items-center transition-all duration-200 group"
-          style={{ backgroundColor: '#141414', border: '1px solid #1f1f1f' }}
-        >
-          <div className="flex items-center gap-3">
-            <div className={`w-1 h-10 rounded ${t.type === 'income' ? 'bg-green-500' : 'bg-red-500'}`} />
-            <div>
-              <p className="font-medium" style={{ color: '#e5e5e5' }}>{t.description}</p>
-              <p className="text-sm" style={{ color: '#666' }}>{getCategoryLabel(t.category)} • {formatDate(t.date)}</p>
+    <div className="space-y-3">
+      {transactions.map((t) => {
+        const isIncome = t.type === 'income';
+        const color = isIncome ? '#22c55e' : '#ef4444';
+        return (
+          <div
+            key={t.id}
+            className="ft-panel-subtle rounded-xl p-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between transition-all duration-200"
+          >
+            <div className="flex min-w-0 items-center gap-3">
+              <div
+                className="h-11 w-1 rounded-full"
+                style={{ backgroundColor: color, boxShadow: `0 0 18px ${color}33` }}
+              />
+              <div className="min-w-0">
+                <p className="truncate font-semibold" style={{ color: '#e7e5df' }}>{t.description}</p>
+                <p className="mt-1 text-sm" style={{ color: '#8d887c' }}>
+                  {getCategoryLabel(t.category)} · {formatDate(t.date)}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center justify-between gap-3 sm:justify-end">
+              <p className="font-bold" style={{ color }}>
+                {isIncome ? '+' : '-'} {formatCurrency(Number(t.amount))}
+              </p>
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => onEdit(t)}
+                  className="ft-button-secondary h-9 w-9 rounded-lg inline-flex items-center justify-center"
+                  title="Editar"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 20h9" />
+                    <path d="M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4 12.5-12.5z" />
+                  </svg>
+                </button>
+                <button
+                  onClick={() => handleDelete(t.id, t.description)}
+                  className="h-9 w-9 rounded-lg inline-flex items-center justify-center transition-colors"
+                  style={{ color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.18)', background: 'rgba(239, 68, 68, 0.06)' }}
+                  title="Excluir"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M3 6h18" />
+                    <path d="M8 6V4h8v2" />
+                    <path d="M19 6l-1 14H6L5 6" />
+                  </svg>
+                </button>
+              </div>
             </div>
           </div>
-          <div className="flex items-center gap-4">
-            <p className={`font-bold text-lg ${t.type === 'income' ? 'text-green-600' : 'text-red-600'}`}>
-              {t.type === 'income' ? '+' : '-'} {formatCurrency(Number(t.amount))}
-            </p>
-            <button
-              onClick={() => onEdit(t)}
-              className="p-2 rounded-lg transition-colors opacity-70 hover:opacity-100"
-              style={{ color: '#3b82f6' }}
-              title="Editar"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-              </svg>
-            </button>
-            <button
-              onClick={() => handleDelete(t.id, t.description)}
-              className="p-2 rounded-lg transition-colors opacity-70 hover:opacity-100"
-              style={{ color: '#ef4444' }}
-              title="Excluir"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="3 6 5 6 21 6" />
-                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                <line x1="10" y1="11" x2="10" y2="17" />
-                <line x1="14" y1="11" x2="14" y2="17" />
-              </svg>
-            </button>
-          </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

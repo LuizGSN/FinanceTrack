@@ -56,7 +56,7 @@ function AppContent() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: isDark ? '#050505' : '#f8fafc' }}>
+      <div className="ft-page min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="inline-block w-8 h-8 border-2 rounded-full animate-spin" style={{ borderColor: '#D4A017 transparent #D4A017 transparent' }}></div>
           <p className="text-sm mt-3" style={{ color: isDark ? '#666' : '#475569' }}>Carregando...</p>

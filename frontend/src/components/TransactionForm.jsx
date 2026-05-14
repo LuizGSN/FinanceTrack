@@ -2,29 +2,24 @@ import { useState } from 'react';
 import { createTransaction, updateTransaction } from '../api';
 
 const GOLD = '#D4A017';
-const DARK_BG = '#141414';
-const CARD_BORDER = '#1f1f1f';
-const TEXT_PRIMARY = '#e5e5e5';
-const TEXT_SECONDARY = '#888';
 
-// Categorias por tipo (deve corresponder ao backend)
 const EXPENSE_CATEGORIES = [
-  { value: 'food', label: '🍔 Alimentação' },
-  { value: 'transport', label: '🚗 Transporte' },
-  { value: 'utilities', label: '💡 Utilidades' },
-  { value: 'entertainment', label: '🎬 Entretenimento' },
-  { value: 'healthcare', label: '🏥 Saúde' },
-  { value: 'shopping', label: '🛍️ Compras' },
-  { value: 'education', label: '📚 Educação' },
-  { value: 'other_expense', label: '📦 Outro' },
+  { value: 'food', label: 'Alimentacao' },
+  { value: 'transport', label: 'Transporte' },
+  { value: 'utilities', label: 'Utilidades' },
+  { value: 'entertainment', label: 'Entretenimento' },
+  { value: 'healthcare', label: 'Saude' },
+  { value: 'shopping', label: 'Compras' },
+  { value: 'education', label: 'Educacao' },
+  { value: 'other_expense', label: 'Outro' },
 ];
 
 const INCOME_CATEGORIES = [
-  { value: 'salary', label: '💰 Salário' },
-  { value: 'freelance', label: '💼 Freelance' },
-  { value: 'investment', label: '📈 Investimento' },
-  { value: 'bonus', label: '🎁 Bônus' },
-  { value: 'other_income', label: '📦 Outro' },
+  { value: 'salary', label: 'Salario' },
+  { value: 'freelance', label: 'Freelance' },
+  { value: 'investment', label: 'Investimento' },
+  { value: 'bonus', label: 'Bonus' },
+  { value: 'other_income', label: 'Outro' },
 ];
 
 export default function TransactionForm({ transaction, onClose, onSave }) {
@@ -45,12 +40,9 @@ export default function TransactionForm({ transaction, onClose, onSave }) {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // Reset category when type changes (if not editing)
   const handleTypeChange = (newType) => {
     setType(newType);
-    if (!isEditing) {
-      setCategory('');
-    }
+    if (!isEditing) setCategory('');
   };
 
   async function handleSubmit(e) {
@@ -72,23 +64,34 @@ export default function TransactionForm({ transaction, onClose, onSave }) {
     }
   }
 
-  const inputStyle = { backgroundColor: '#1a1a1a', color: TEXT_PRIMARY, border: '1px solid #2a2a2a' };
-
   return (
-    <div className="fixed inset-0 flex items-center justify-center z-50 p-4" style={{ backgroundColor: 'rgba(0,0,0,0.7)' }}>
-      <div className="p-6 rounded-lg w-full max-w-md" style={{ backgroundColor: DARK_BG, border: `1px solid ${CARD_BORDER}` }}>
-        <h2 className="text-lg font-bold mb-4" style={{ color: GOLD }}>
-          {isEditing ? 'Editar Transação' : 'Nova Transação'}
-        </h2>
-        {error && <p className="p-3 rounded mb-4 text-sm" style={{ backgroundColor: '#1a0a0a', color: '#ef4444' }}>{error}</p>}
+    <div className="fixed inset-0 flex items-center justify-center z-50 p-4 bg-black/75 backdrop-blur-sm">
+      <div className="ft-panel w-full max-w-md rounded-xl p-6">
+        <div className="mb-5 flex items-start justify-between gap-4">
+          <div>
+            <p className="ft-kicker">{isEditing ? 'Editar' : 'Nova'}</p>
+            <h2 className="mt-1 text-xl font-bold" style={{ color: GOLD }}>
+              {isEditing ? 'Editar transacao' : 'Nova transacao'}
+            </h2>
+          </div>
+          <button type="button" onClick={onClose} className="ft-button-secondary rounded-lg px-3 py-1.5 text-sm">
+            Fechar
+          </button>
+        </div>
+
+        {error && (
+          <p className="p-3 rounded-lg mb-4 text-sm border border-red-500/30 bg-red-500/10 text-red-500">
+            {error}
+          </p>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
             type="text"
-            placeholder="Descrição"
+            placeholder="Descricao"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className="w-full p-3 rounded text-sm"
-            style={inputStyle}
+            className="ft-input px-4 py-3 text-sm"
             required
           />
           <input
@@ -96,27 +99,33 @@ export default function TransactionForm({ transaction, onClose, onSave }) {
             placeholder="Valor"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
-            className="w-full p-3 rounded text-sm"
-            style={inputStyle}
+            className="ft-input px-4 py-3 text-sm"
             required
             step="0.01"
             min="0"
           />
-          <select
-            value={type}
-            onChange={(e) => handleTypeChange(e.target.value)}
-            className="w-full p-3 rounded text-sm"
-            style={inputStyle}
-            required
-          >
-            <option value="expense">Despesa</option>
-            <option value="income">Receita</option>
-          </select>
+          <div className="grid grid-cols-2 gap-3">
+            <select
+              value={type}
+              onChange={(e) => handleTypeChange(e.target.value)}
+              className="ft-input px-4 py-3 text-sm"
+              required
+            >
+              <option value="expense">Despesa</option>
+              <option value="income">Receita</option>
+            </select>
+            <input
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              className="ft-input px-4 py-3 text-sm"
+              required
+            />
+          </div>
           <select
             value={category}
             onChange={(e) => setCategory(e.target.value)}
-            className="w-full p-3 rounded text-sm"
-            style={inputStyle}
+            className="ft-input px-4 py-3 text-sm"
             required
           >
             <option value="">Selecione uma categoria</option>
@@ -126,32 +135,18 @@ export default function TransactionForm({ transaction, onClose, onSave }) {
               </option>
             ))}
           </select>
-          <input
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            className="w-full p-3 rounded text-sm"
-            style={inputStyle}
-            required
-          />
-          <div className="flex gap-4">
+          <div className="flex gap-3 pt-1">
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 font-semibold p-3 rounded text-sm transition-all"
-              style={{ backgroundColor: GOLD, color: '#0A0A0A' }}
-              onMouseEnter={(e) => { if (!loading) e.currentTarget.style.backgroundColor = '#c4940f'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = GOLD; }}
+              className="ft-button-primary flex-1 rounded-lg p-3 text-sm font-semibold"
             >
               {loading ? 'Salvando...' : isEditing ? 'Salvar' : 'Criar'}
             </button>
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 p-3 rounded text-sm transition-all"
-              style={{ backgroundColor: '#1a1a1a', color: TEXT_SECONDARY }}
-              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#2a2a2a')}
-              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#1a1a1a')}
+              className="ft-button-secondary flex-1 rounded-lg p-3 text-sm"
             >
               Cancelar
             </button>
