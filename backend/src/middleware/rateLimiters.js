@@ -1,11 +1,21 @@
 const rateLimit = require('express-rate-limit');
 const { ipKeyGenerator } = require('../utils/ipKeyGenerator');
 
-// Rate limiting para autenticação (login/register)
+function readPositiveInt(name, defaultValue) {
+  const value = Number.parseInt(process.env[name], 10);
+  return Number.isInteger(value) && value > 0 ? value : defaultValue;
+}
+
+const authWindowMinutes = readPositiveInt('AUTH_RATE_LIMIT_WINDOW', 15);
+const authMax = readPositiveInt('AUTH_RATE_LIMIT_MAX', 20);
+const apiMax = readPositiveInt('API_RATE_LIMIT_MAX', 300);
+const transactionMax = readPositiveInt('TRANSACTION_RATE_LIMIT_MAX', 100);
+
+// Rate limiting para autenticacao (login/register)
 const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 5, // máx 5 tentativas por IP
-  message: { error: 'Too many authentication attempts. Try again in 15 minutes.' },
+  windowMs: authWindowMinutes * 60 * 1000,
+  max: authMax,
+  message: { error: `Too many authentication attempts. Try again in ${authWindowMinutes} minutes.` },
   standardHeaders: true,
   legacyHeaders: false,
   skip: (req) => process.env.NODE_ENV === 'test',
@@ -14,19 +24,21 @@ const authLimiter = rateLimit({
 
 // Rate limiting geral para API
 const apiLimiter = rateLimit({
-  windowMs: 60 * 1000, // 1 minuto
-  max: 100, // máx 100 requisições por IP
+  windowMs: 60 * 1000,
+  max: apiMax,
   message: { error: 'Too many requests from this IP, please try again later.' },
   standardHeaders: true,
   legacyHeaders: false,
   skip: (req) => process.env.NODE_ENV === 'test',
 });
 
-// Rate limiting para transações (mais restritivo)
+// Rate limiting para transacoes
 const transactionLimiter = rateLimit({
-  windowMs: 60 * 1000, // 1 minuto
-  max: 30, // máx 30 requisições por IP
+  windowMs: 60 * 1000,
+  max: transactionMax,
   message: { error: 'Too many transaction requests. Please wait before making more requests.' },
+  standardHeaders: true,
+  legacyHeaders: false,
   skip: (req) => process.env.NODE_ENV === 'test',
 });
 
