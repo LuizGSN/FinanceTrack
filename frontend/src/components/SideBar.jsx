@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { useTheme } from '../contexts/ThemeContext';
 import Logo from './Logo';
+import ChangePasswordModal from './ChangePasswordModal';
 
 export default function SideBar({ user, onLogout, currentPage, onNavigate }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [showChangePassword, setShowChangePassword] = useState(false);
   const { isDark, toggleTheme } = useTheme();
   const colors = isDark
     ? {
@@ -240,6 +242,29 @@ export default function SideBar({ user, onLogout, currentPage, onNavigate }) {
             )}
           </button>
 
+          <button
+            onClick={() => setShowChangePassword(true)}
+            className="w-full px-4 py-3 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 text-sm font-medium"
+            style={{
+              backgroundColor: colors.buttonBg,
+              color: isDark ? '#999' : '#334155',
+              border: `1px solid ${colors.border}`,
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = colors.hoverBg;
+              e.currentTarget.style.borderColor = 'rgba(212, 160, 23, 0.3)';
+              e.currentTarget.style.color = '#D4A017';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = colors.buttonBg;
+              e.currentTarget.style.borderColor = colors.border;
+              e.currentTarget.style.color = isDark ? '#999' : '#334155';
+            }}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+            Alterar Senha
+          </button>
+
           {/* Logout */}
           <button
             onClick={onLogout}
@@ -263,6 +288,9 @@ export default function SideBar({ user, onLogout, currentPage, onNavigate }) {
           </button>
         </div>
       </aside>
+      {showChangePassword && (
+        <ChangePasswordModal onClose={() => setShowChangePassword(false)} />
+      )}
     </>
   );
 }

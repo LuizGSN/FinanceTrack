@@ -87,11 +87,7 @@ initializeDb().then(async () => {
       name TEXT NOT NULL,
       email TEXT UNIQUE NOT NULL,
       password TEXT NOT NULL,
-      confirmation_token TEXT,
-      confirmation_expires TIMESTAMP,
       confirmed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-      reset_token TEXT,
-      reset_expires TIMESTAMP,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
     CREATE TABLE IF NOT EXISTS transactions (

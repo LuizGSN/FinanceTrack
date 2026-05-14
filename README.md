@@ -10,7 +10,7 @@
 
 ## ✨ Funcionalidades
 
-- **Autenticação** — registro, login e sessão com JWT e senhas criptografadas (bcrypt)
+- **Autenticacao** - registro, login, sessao com JWT e alteracao de senha autenticada
 - **CRUD completo** — criar, editar e excluir receitas e despesas
 - **Filtros por período** — intervalo de datas e tipo (receita/despesa)
 - **Dashboard interativo** — resumo com receitas, despesas e saldo em tempo real
@@ -123,15 +123,13 @@ FinanceTrack/
         ├── api.js                # Fetch wrappers + interceptor 401 (SPA)
         ├── config.js             # API base URL
         ├── pages/
-        │   ├── LoginPage.jsx     # Login, registro e link forgot password
+        │   ├── LoginPage.jsx     # Login e registro
         │   ├── Dashboard.jsx     # CRUD + filtros + resumo + infinite scroll
         │   ├── AnalyticsPage.jsx # Gráficos e análise de perfil
-        │   ├── InvestmentsPage.jsx # Gestão de investimentos
-        │   ├── ForgotPasswordPage.jsx # Recuperação de senha
-        │   └── ResetPasswordPage.jsx  # Redefinição de senha
+        │   └── InvestmentsPage.jsx # Gestão de investimentos
         └── components/
-            ├── Header.jsx        # Navbar com navegação
             ├── SideBar.jsx       # Menu lateral com tema
+            ├── ChangePasswordModal.jsx # Alteracao de senha autenticada
             ├── Logo.jsx          # Logo SVG (FT)
             ├── Summary.jsx       # Cards de resumo
             ├── TransactionList.jsx # Lista com ações
@@ -147,9 +145,7 @@ FinanceTrack/
 | `POST` | `/api/v1/auth/register` | Não | Criar conta |
 | `POST` | `/api/v1/auth/login` | Não | Login |
 | `GET` | `/api/v1/auth/me` | Sim | Dados do usuário |
-| `POST` | `/api/v1/auth/forgot-password` | Não | Solicitar recuperação de senha |
-| `GET` | `/api/v1/auth/verify-reset-token/:token` | Não | Verificar token de reset |
-| `POST` | `/api/v1/auth/reset-password` | Não | Redefinir senha |
+| `POST` | `/api/v1/auth/change-password` | Sim | Alterar senha usando a senha atual |
 
 ### Transações
 
@@ -187,8 +183,8 @@ FinanceTrack/
 - **Validação de token** ao recarregar a página via `/auth/me`
 - Headers de segurança: HSTS, X-Content-Type-Options, X-Frame-Options, CSP
 - **Logging estruturado** com Winston (erros, warn, info, http, debug)
-- Reset token com hash SHA-256 e expiração de 1 hora
-- Não revela existência de email no forgot-password (segurança)
+- Alteracao de senha protegida por JWT e validacao da senha atual
+- O projeto nao depende de SMTP, confirmacao de e-mail ou recuperacao por e-mail
 
 ## 🌐 Deploy
 

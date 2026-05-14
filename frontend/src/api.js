@@ -6,19 +6,17 @@ const BASE_URL = API_URL;
 function getHeaders() {
   const headers = { 'Content-Type': 'application/json' };
   const token = localStorage.getItem('token');
-  if (token) headers['Authorization'] = `Bearer ${token}`;
+  if (token) headers.Authorization = `Bearer ${token}`;
   return headers;
 }
 
 async function handleResponse(res, options = {}) {
-  // Treat 401 as special case (token expired)
   if (res.status === 401) {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    Toast.error('Sessão expirada. Faça login novamente.');
-    // Dispatch custom event so App.jsx can handle redirect internally
+    Toast.error('Sessao expirada. Faca login novamente.');
     window.dispatchEvent(new CustomEvent('auth:unauthorized'));
-    throw new Error('Sessão expirada');
+    throw new Error('Sessao expirada');
   }
 
   let errorMessage = 'Erro desconhecido';
@@ -33,7 +31,6 @@ async function handleResponse(res, options = {}) {
     errorMessage = `Erro ${res.status}: ${res.statusText}`;
   }
 
-  // Show error toast if enabled
   if (options.showError !== false) {
     Toast.error(errorMessage);
   }
@@ -45,38 +42,41 @@ async function handleResponse(res, options = {}) {
 }
 
 export async function register(name, email, password) {
-  try {
-    const res = await fetch(`${BASE_URL}/api/v1/auth/register`, {
-      method: 'POST',
-      headers: getHeaders(),
-      body: JSON.stringify({ name, email, password }),
-    });
-    const data = await handleResponse(res, { showError: false });
-    Toast.success('Conta criada com sucesso!');
-    return data;
-  } catch (err) {
-    throw err;
-  }
+  const res = await fetch(`${BASE_URL}/api/v1/auth/register`, {
+    method: 'POST',
+    headers: getHeaders(),
+    body: JSON.stringify({ name, email, password }),
+  });
+  const data = await handleResponse(res, { showError: false });
+  Toast.success('Conta criada com sucesso!');
+  return data;
 }
 
 export async function login(email, password) {
-  try {
-    const res = await fetch(`${BASE_URL}/api/v1/auth/login`, {
-      method: 'POST',
-      headers: getHeaders(),
-      body: JSON.stringify({ email, password }),
-    });
-    const data = await handleResponse(res, { showError: false });
-    Toast.success('Login realizado com sucesso!');
-    return data;
-  } catch (err) {
-    throw err;
-  }
+  const res = await fetch(`${BASE_URL}/api/v1/auth/login`, {
+    method: 'POST',
+    headers: getHeaders(),
+    body: JSON.stringify({ email, password }),
+  });
+  const data = await handleResponse(res, { showError: false });
+  Toast.success('Login realizado com sucesso!');
+  return data;
 }
 
 export async function getMe() {
   const res = await fetch(`${BASE_URL}/api/v1/auth/me`, { headers: getHeaders() });
   return handleResponse(res);
+}
+
+export async function changePassword(currentPassword, newPassword) {
+  const res = await fetch(`${BASE_URL}/api/v1/auth/change-password`, {
+    method: 'POST',
+    headers: getHeaders(),
+    body: JSON.stringify({ currentPassword, newPassword }),
+  });
+  const data = await handleResponse(res, { showError: false });
+  Toast.success('Senha alterada com sucesso!');
+  return data;
 }
 
 export async function getTransactions(filters = {}) {
@@ -151,34 +151,4 @@ export async function getInvestmentsSummary() {
     headers: getHeaders(),
   });
   return handleResponse(res);
-}
-
-export async function sendForgotPassword(email) {
-  try {
-    const res = await fetch(`${BASE_URL}/api/v1/auth/forgot-password`, {
-      method: 'POST',
-      headers: getHeaders(),
-      body: JSON.stringify({ email }),
-    });
-    const data = await handleResponse(res, { showError: false });
-    Toast.success('E-mail de recuperação enviado!');
-    return data;
-  } catch (err) {
-    throw err;
-  }
-}
-
-export async function resetPassword(token, newPassword) {
-  try {
-    const res = await fetch(`${BASE_URL}/api/v1/auth/reset-password`, {
-      method: 'POST',
-      headers: getHeaders(),
-      body: JSON.stringify({ token, newPassword }),
-    });
-    const data = await handleResponse(res, { showError: false });
-    Toast.success('Senha redefinida com sucesso!');
-    return data;
-  } catch (err) {
-    throw err;
-  }
 }

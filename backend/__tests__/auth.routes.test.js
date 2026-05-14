@@ -1,16 +1,13 @@
 const express = require('express');
 const request = require('supertest');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 jest.mock('../src/database/db', () => ({
   prepare: jest.fn(),
 }));
 
-jest.mock('../src/services/emailService', () => ({
-  sendPasswordResetEmail: jest.fn().mockResolvedValue(true),
-}));
-
 const { prepare } = require('../src/database/db');
-const { sendPasswordResetEmail } = require('../src/services/emailService');
 const authRoutes = require('../src/routes/auth');
 
 function makeApp() {
@@ -53,31 +50,50 @@ describe('Auth routes', () => {
     expect(res.body.message).toBe('User created successfully.');
   });
 
-  test('POST /forgot-password clears reset token when email delivery fails', async () => {
+  test('POST /change-password updates password for authenticated user', async () => {
     const app = makeApp();
-    sendPasswordResetEmail.mockResolvedValueOnce(false);
-
-    const clearTokenRun = jest.fn().mockResolvedValue({ changes: 1 });
+    const oldHash = await bcrypt.hash('old-password', 4);
+    const updateRun = jest.fn().mockResolvedValue({ changes: 1 });
 
     prepare.mockImplementation((sql) => {
-      if (sql.includes('SELECT id, name, email FROM users WHERE email = $1')) {
-        return { get: jest.fn().mockResolvedValue({ id: 12, name: 'Ana', email: 'ana@example.com' }) };
+      if (sql.includes('SELECT id, password FROM users WHERE id = $1')) {
+        return { get: jest.fn().mockResolvedValue({ id: 12, password: oldHash }) };
       }
-      if (sql.includes('UPDATE users SET reset_token = $1, reset_expires = $2 WHERE id = $3')) {
-        return { run: jest.fn().mockResolvedValue({ changes: 1 }) };
-      }
-      if (sql.includes('UPDATE users SET reset_token = NULL, reset_expires = NULL WHERE id = $1')) {
-        return { run: clearTokenRun };
+      if (sql.includes('UPDATE users SET password = $1 WHERE id = $2')) {
+        return { run: updateRun };
       }
       return { get: jest.fn(), run: jest.fn(), all: jest.fn() };
     });
 
+    const token = jwt.sign({ id: 12 }, process.env.JWT_SECRET);
     const res = await request(app)
-      .post('/api/v1/auth/forgot-password')
-      .send({ email: 'ana@example.com' });
+      .post('/api/v1/auth/change-password')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ currentPassword: 'old-password', newPassword: 'new-password' });
 
     expect(res.status).toBe(200);
-    expect(res.body).toEqual({ message: 'If email exists, password reset link was sent' });
-    expect(clearTokenRun).toHaveBeenCalledWith(12);
+    expect(res.body).toEqual({ message: 'Password changed successfully' });
+    expect(updateRun).toHaveBeenCalledWith(expect.any(String), 12);
+  });
+
+  test('POST /change-password rejects incorrect current password', async () => {
+    const app = makeApp();
+    const oldHash = await bcrypt.hash('old-password', 4);
+
+    prepare.mockImplementation((sql) => {
+      if (sql.includes('SELECT id, password FROM users WHERE id = $1')) {
+        return { get: jest.fn().mockResolvedValue({ id: 12, password: oldHash }) };
+      }
+      return { get: jest.fn(), run: jest.fn(), all: jest.fn() };
+    });
+
+    const token = jwt.sign({ id: 12 }, process.env.JWT_SECRET);
+    const res = await request(app)
+      .post('/api/v1/auth/change-password')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ currentPassword: 'wrong-password', newPassword: 'new-password' });
+
+    expect(res.status).toBe(400);
+    expect(res.body).toEqual({ error: 'Current password is incorrect' });
   });
 });

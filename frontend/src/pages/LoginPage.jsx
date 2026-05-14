@@ -8,7 +8,7 @@ const DARK_BG = '#050505';
 const CARD_BG = '#0a0a0a';
 const CARD_BORDER = '#1a1a1a';
 
-export default function LoginPage({ onLogin, onShowForgot }) {
+export default function LoginPage({ onLogin }) {
   const { isDark } = useTheme();
   const [isRegister, setIsRegister] = useState(false);
   const [name, setName] = useState('');
@@ -249,19 +249,6 @@ export default function LoginPage({ onLogin, onShowForgot }) {
                 {isRegister ? 'Entrar' : 'Criar conta'}
               </button>
             </p>
-            {!isRegister && (
-              <p className="text-center mt-3">
-                <button
-                  onClick={onShowForgot}
-                  className="text-sm transition-colors"
-                  style={{ color: '#666' }}
-                  onMouseEnter={(e) => e.currentTarget.style.color = GOLD}
-                  onMouseLeave={(e) => e.currentTarget.style.color = '#666'}
-                >
-                  Esqueceu a senha?
-                </button>
-              </p>
-            )}
           </div>
         </div>
 

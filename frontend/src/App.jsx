@@ -3,8 +3,6 @@ import LoginPage from './pages/LoginPage';
 import Dashboard from './pages/Dashboard';
 import AnalyticsPage from './pages/AnalyticsPage';
 import InvestmentsPage from './pages/InvestmentsPage';
-import ForgotPasswordPage from './pages/ForgotPasswordPage';
-import ResetPasswordPage from './pages/ResetPasswordPage';
 import SideBar from './components/SideBar';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import { getMe } from './api';
@@ -13,24 +11,9 @@ function AppContent() {
   const { isDark } = useTheme();
   const [user, setUser] = useState(null);
   const [page, setPage] = useState('dashboard');
-  const [authPage, setAuthPage] = useState(null);
-  const [resetToken, setResetToken] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
 
   useEffect(() => {
-    // Verificar se há token de reset de senha na URL
-    const params = new URLSearchParams(window.location.search);
-    const urlToken = params.get('token');
-    const urlType = params.get('type');
-
-    if (urlToken && urlType === 'reset') {
-      setResetToken(urlToken);
-      setAuthPage('reset');
-      window.history.replaceState({}, document.title, window.location.pathname);
-      setAuthLoading(false);
-      return;
-    }
-
     const token = localStorage.getItem('token');
     if (token) {
       getMe()
@@ -69,22 +52,6 @@ function AppContent() {
     localStorage.removeItem('user');
     setUser(null);
     setPage('dashboard');
-    setAuthPage(null);
-    setResetToken(null);
-  }
-
-  function handleShowForgot() {
-    setAuthPage('forgot');
-  }
-
-  function handleBackToLogin() {
-    setAuthPage(null);
-    setResetToken(null);
-  }
-
-  function handleResetSuccess() {
-    setAuthPage(null);
-    setResetToken(null);
   }
 
   if (authLoading) {
@@ -99,19 +66,7 @@ function AppContent() {
   }
 
   if (!user) {
-    if (authPage === 'forgot') {
-      return <ForgotPasswordPage onBackToLogin={handleBackToLogin} />;
-    }
-    if (authPage === 'reset' && resetToken) {
-      return (
-        <ResetPasswordPage
-          token={resetToken}
-          onBackToLogin={handleBackToLogin}
-          onSuccess={handleResetSuccess}
-        />
-      );
-    }
-    return <LoginPage onLogin={handleLogin} onShowForgot={handleShowForgot} />;
+    return <LoginPage onLogin={handleLogin} />;
   }
 
   const shared = {

@@ -1,10 +1,8 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const crypto = require('crypto');
 const { prepare } = require('../database/db');
 const authMiddleware = require('../middleware/auth');
-const { sendPasswordResetEmail } = require('../services/emailService');
 const logger = require('../utils/logger');
 
 const router = express.Router();
@@ -109,93 +107,35 @@ router.get('/me', authMiddleware, async (req, res) => {
   }
 });
 
-router.post('/forgot-password', async (req, res) => {
+router.post('/change-password', authMiddleware, async (req, res) => {
   try {
-    const { email } = req.body;
+    const { currentPassword, newPassword } = req.body;
 
-    if (!email || !validateEmail(email)) {
-      return res.status(400).json({ error: 'Valid email is required' });
-    }
-
-    const user = await prepare('SELECT id, name, email FROM users WHERE email = $1').get(email.toLowerCase());
-    if (!user) {
-      return res.json({ message: 'If email exists, password reset link was sent' });
-    }
-
-    const resetToken = crypto.randomBytes(32).toString('hex');
-    const resetTokenHash = crypto.createHash('sha256').update(resetToken).digest('hex');
-    const resetExpires = new Date(Date.now() + 60 * 60 * 1000);
-
-    await prepare(
-      'UPDATE users SET reset_token = $1, reset_expires = $2 WHERE id = $3'
-    ).run(resetTokenHash, resetExpires, user.id);
-
-    const resetEmailSent = await sendPasswordResetEmail(user.email, user.name, resetToken);
-    if (!resetEmailSent) {
-      logger.error('Failed to send password reset email');
-      await prepare(
-        'UPDATE users SET reset_token = NULL, reset_expires = NULL WHERE id = $1'
-      ).run(user.id);
-    }
-
-    res.json({ message: 'If email exists, password reset link was sent' });
-  } catch (err) {
-    logger.error('Forgot password error:', err);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-router.get('/verify-reset-token/:token', async (req, res) => {
-  try {
-    const { token } = req.params;
-    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
-
-    const user = await prepare(
-      'SELECT id FROM users WHERE reset_token = $1 AND reset_expires > NOW()'
-    ).get(tokenHash);
-
-    if (!user) {
-      return res.status(400).json({ error: 'Invalid or expired token' });
-    }
-
-    res.json({ message: 'Token is valid' });
-  } catch (err) {
-    logger.error('Verify reset token error:', err);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-router.post('/reset-password', async (req, res) => {
-  try {
-    const { token, newPassword } = req.body;
-
-    if (!token || !newPassword) {
-      return res.status(400).json({ error: 'Token and new password are required' });
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ error: 'Current password and new password are required' });
     }
 
     if (!validatePassword(newPassword)) {
       return res.status(400).json({ error: 'Password must be between 6 and 128 characters' });
     }
 
-    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
-
-    const user = await prepare(
-      'SELECT id FROM users WHERE reset_token = $1 AND reset_expires > NOW()'
-    ).get(tokenHash);
-
+    const user = await prepare('SELECT id, password FROM users WHERE id = $1').get(req.userId);
     if (!user) {
-      return res.status(400).json({ error: 'Invalid or expired token' });
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const validPassword = await bcrypt.compare(currentPassword, user.password);
+    if (!validPassword) {
+      return res.status(400).json({ error: 'Current password is incorrect' });
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, 12);
 
-    await prepare(
-      'UPDATE users SET password = $1, reset_token = NULL, reset_expires = NULL WHERE id = $2'
-    ).run(hashedPassword, user.id);
+    await prepare('UPDATE users SET password = $1 WHERE id = $2').run(hashedPassword, user.id);
 
-    res.json({ message: 'Password reset successfully' });
+    res.json({ message: 'Password changed successfully' });
   } catch (err) {
-    logger.error('Reset password error:', err);
+    logger.error('Change password error:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
