@@ -22,11 +22,11 @@ function getBaseUrl() {
   return (process.env.FRONTEND_URL || 'http://localhost:5173').replace(/\/$/, '');
 }
 
-function buildAuthLink(token, type) {
-  return `${getBaseUrl()}/?token=${encodeURIComponent(token)}&type=${type}`;
+function buildResetLink(token) {
+  return `${getBaseUrl()}/?token=${encodeURIComponent(token)}&type=reset`;
 }
 
-function getEmailTemplate({ title, greeting, intro, buttonText, link, expiresText, warning }) {
+function getPasswordResetTemplate(userName, resetLink) {
   return `
 <!DOCTYPE html>
 <html>
@@ -53,19 +53,19 @@ function getEmailTemplate({ title, greeting, intro, buttonText, link, expiresTex
       <h1>FinanceTrack</h1>
     </div>
     <div class="content">
-      <h2>${title}</h2>
-      <p>Olá <span class="highlight">${greeting}</span>,</p>
-      <p>${intro}</p>
+      <h2>Recuperacao de Senha</h2>
+      <p>Ola <span class="highlight">${userName}</span>,</p>
+      <p>Recebemos uma solicitacao para redefinir sua senha.</p>
       <center>
-        <a href="${link}" class="button">${buttonText}</a>
+        <a href="${resetLink}" class="button">Redefinir Senha</a>
       </center>
       <p>Ou copie e cole este link no seu navegador:</p>
-      <p class="link-text">${link}</p>
-      <p style="color: #666; font-size: 12px;">${expiresText}</p>
-      <div class="warning">${warning}</div>
+      <p class="link-text">${resetLink}</p>
+      <p style="color: #666; font-size: 12px;">Este link expira em 1 hora.</p>
+      <div class="warning">Se voce nao solicitou uma recuperacao de senha, ignore este e-mail.</div>
     </div>
     <div class="footer">
-      <p style="margin: 0;">© 2026 FinanceTrack. Todos os direitos reservados.</p>
+      <p style="margin: 0;">(c) 2026 FinanceTrack. Todos os direitos reservados.</p>
     </div>
   </div>
 </body>
@@ -98,43 +98,16 @@ async function sendMail({ to, subject, html, developmentLink }) {
   }
 }
 
-async function sendConfirmationEmail(email, userName, confirmationToken) {
-  const confirmationLink = buildAuthLink(confirmationToken, 'confirm');
-  return sendMail({
-    to: email,
-    subject: 'Confirme seu e-mail - FinanceTrack',
-    developmentLink: confirmationLink,
-    html: getEmailTemplate({
-      title: 'Confirmação de E-mail',
-      greeting: userName,
-      intro: 'Recebemos seu cadastro. Confirme seu e-mail para ativar sua conta.',
-      buttonText: 'Confirmar E-mail',
-      link: confirmationLink,
-      expiresText: 'Este link expira em 24 horas.',
-      warning: 'Se você não criou uma conta, ignore este e-mail.',
-    }),
-  });
-}
-
 async function sendPasswordResetEmail(email, userName, resetToken) {
-  const resetLink = buildAuthLink(resetToken, 'reset');
+  const resetLink = buildResetLink(resetToken);
   return sendMail({
     to: email,
-    subject: 'Recuperação de Senha - FinanceTrack',
+    subject: 'Recuperacao de Senha - FinanceTrack',
     developmentLink: resetLink,
-    html: getEmailTemplate({
-      title: 'Recuperação de Senha',
-      greeting: userName,
-      intro: 'Recebemos uma solicitação para redefinir sua senha.',
-      buttonText: 'Redefinir Senha',
-      link: resetLink,
-      expiresText: 'Este link expira em 1 hora.',
-      warning: 'Se você não solicitou uma recuperação de senha, ignore este e-mail.',
-    }),
+    html: getPasswordResetTemplate(userName, resetLink),
   });
 }
 
 module.exports = {
-  sendConfirmationEmail,
   sendPasswordResetEmail,
 };

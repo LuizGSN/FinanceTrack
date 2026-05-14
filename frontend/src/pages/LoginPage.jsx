@@ -70,7 +70,7 @@ export default function LoginPage({ onLogin, onShowForgot }) {
                 Conta Criada com Sucesso!
               </h2>
               <p className="text-gray-400 mb-6 text-sm">
-                Um e-mail de confirmacao foi enviado para <span style={{ color: GOLD }}>{registeredEmail}</span>
+                Sua conta <span style={{ color: GOLD }}>{registeredEmail}</span> ja pode acessar o FinanceTrack.
               </p>
               <div className="p-4 rounded-lg mb-6" style={{
                 backgroundColor: 'rgba(34, 197, 94, 0.1)',
@@ -80,7 +80,7 @@ export default function LoginPage({ onLogin, onShowForgot }) {
                   Cadastro concluido
                 </p>
                 <p style={{ color: '#999', fontSize: '12px', marginBottom: '4px' }}>
-                  Confirme seu e-mail antes de fazer login.
+                  Volte para o login e entre com suas credenciais.
                 </p>
               </div>
               <button

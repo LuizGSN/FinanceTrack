@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const { prepare } = require('../database/db');
 const authMiddleware = require('../middleware/auth');
-const { sendConfirmationEmail, sendPasswordResetEmail } = require('../services/emailService');
+const { sendPasswordResetEmail } = require('../services/emailService');
 const logger = require('../utils/logger');
 
 const router = express.Router();
@@ -48,26 +48,14 @@ router.post('/register', async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 12);
-    const confirmationToken = crypto.randomBytes(32).toString('hex');
-    const confirmationTokenHash = crypto.createHash('sha256').update(confirmationToken).digest('hex');
-    const tokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
     const result = await prepare(
-      `INSERT INTO users
-        (name, email, password, confirmation_token, confirmation_expires, confirmed_at)
-       VALUES ($1, $2, $3, $4, $5, NULL)`
-    ).run(name, email, hashedPassword, confirmationTokenHash, tokenExpires);
-
-    const confirmationEmailSent = await sendConfirmationEmail(email, name, confirmationToken);
-    if (!confirmationEmailSent) {
-      logger.error('Failed to send confirmation email');
-      await prepare('DELETE FROM users WHERE id = $1').run(result.lastInsertRowid);
-      return res.status(503).json({ error: 'Unable to send confirmation email. Please try again.' });
-    }
+      'INSERT INTO users (name, email, password, confirmed_at) VALUES ($1, $2, $3, NOW())'
+    ).run(name, email, hashedPassword);
 
     res.status(201).json({
       user: { id: result.lastInsertRowid, name, email },
-      message: 'User created successfully. Please check your email to confirm your account.',
+      message: 'User created successfully.',
     });
   } catch (err) {
     logger.error('Register error:', err);
@@ -99,10 +87,6 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
-    if (!user.confirmed_at) {
-      return res.status(403).json({ error: 'Please confirm your email before logging in' });
-    }
-
     const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
       expiresIn: '7d',
     });
@@ -121,35 +105,6 @@ router.get('/me', authMiddleware, async (req, res) => {
     res.json(user);
   } catch (err) {
     logger.error('Me error:', err);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-router.get('/confirm-email', async (req, res) => {
-  try {
-    const { token } = req.query;
-
-    if (!token) {
-      return res.status(400).json({ error: 'Token is required' });
-    }
-
-    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
-
-    const user = await prepare(
-      'SELECT id FROM users WHERE confirmation_token = $1 AND confirmation_expires > NOW()'
-    ).get(tokenHash);
-
-    if (!user) {
-      return res.status(400).json({ error: 'Invalid or expired token' });
-    }
-
-    await prepare(
-      'UPDATE users SET confirmed_at = NOW(), confirmation_token = NULL, confirmation_expires = NULL WHERE id = $1'
-    ).run(user.id);
-
-    res.json({ message: 'Email confirmed successfully' });
-  } catch (err) {
-    logger.error('Confirm email error:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
