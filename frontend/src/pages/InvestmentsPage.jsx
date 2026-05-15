@@ -217,42 +217,36 @@ export default function InvestmentsPage({ user, onLogout, onDashboard, onAnalyti
         </div>
 
         {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="p-5 rounded-xl" style={{
-            backgroundColor: CARD_BG,
-            border: `1px solid ${CARD_BORDER}`,
-          }}>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="ft-panel-subtle p-5 rounded-xl">
             <div className="flex items-center gap-2 mb-2">
               <DollarSign size={18} style={{ color: GOLD }} />
-              <p className="text-xs" style={{ color: TEXT_SECONDARY }}>Investido</p>
+              <p className="text-xs font-semibold uppercase" style={{ color: 'var(--ft-muted)' }}>Investido</p>
             </div>
-            <p className="text-xl font-bold" style={{ color: TEXT_PRIMARY }}>{fmt(totalInitial)}</p>
+            <p className="text-2xl font-bold" style={{ color: 'var(--ft-text)' }}>{fmt(totalInitial)}</p>
           </div>
-          <div className="p-5 rounded-xl" style={{
-            backgroundColor: CARD_BG,
-            border: `1px solid ${CARD_BORDER}`,
-          }}>
+          <div className="ft-panel-subtle p-5 rounded-xl">
             <div className="flex items-center gap-2 mb-2">
               <PieChart size={18} style={{ color: GOLD }} />
-              <p className="text-xs" style={{ color: TEXT_SECONDARY }}>Valor Atual</p>
+              <p className="text-xs font-semibold uppercase" style={{ color: 'var(--ft-muted)' }}>Valor atual</p>
             </div>
-            <p className="text-xl font-bold" style={{ color: TEXT_PRIMARY }}>{fmt(totalCurrent)}</p>
+            <p className="text-2xl font-bold" style={{ color: 'var(--ft-text)' }}>{fmt(totalCurrent)}</p>
           </div>
-          <div className="p-5 rounded-xl md:col-span-2" style={{
-            backgroundColor: totalGain >= 0 ? 'rgba(34, 197, 94, 0.1)' : 'rgba(239, 68, 68, 0.1)',
-            border: `1px solid ${totalGain >= 0 ? 'rgba(34, 197, 94, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`,
+          <div className="p-5 rounded-xl" style={{
+            backgroundColor: totalGain >= 0 ? 'rgba(34, 197, 94, 0.08)' : 'rgba(239, 68, 68, 0.08)',
+            border: `1px solid ${totalGain >= 0 ? 'rgba(34, 197, 94, 0.22)' : 'rgba(239, 68, 68, 0.22)'}`,
           }}>
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
                 {totalGain >= 0 ? <TrendingUp size={18} style={{ color: GREEN }} /> : <TrendingDown size={18} style={{ color: RED }} />}
-                <p className="text-xs" style={{ color: TEXT_SECONDARY }}>Ganho/Perda Total</p>
+                <p className="text-xs font-semibold uppercase" style={{ color: 'var(--ft-muted)' }}>Ganho/perda</p>
               </div>
               <span className={`text-xs font-semibold px-2 py-1 rounded ${totalGain >= 0 ? 'text-green-500' : 'text-red-500'}`}
                 style={{ backgroundColor: totalGain >= 0 ? 'rgba(34, 197, 94, 0.2)' : 'rgba(239, 68, 68, 0.2)' }}>
                 {gainPercent}%
               </span>
             </div>
-            <p className="text-xl font-bold" style={{ color: totalGain >= 0 ? GREEN : RED }}>
+            <p className="text-2xl font-bold" style={{ color: totalGain >= 0 ? GREEN : RED }}>
               {fmt(totalGain)}
             </p>
           </div>

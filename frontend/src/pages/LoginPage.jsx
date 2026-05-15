@@ -4,6 +4,8 @@ import Logo from '../components/Logo';
 import { useTheme } from '../contexts/ThemeContext';
 
 const GOLD = '#D4A017';
+const DEMO_EMAIL = 'demo@financetrack.app';
+const DEMO_PASSWORD = 'demo123456';
 
 export default function LoginPage({ onLogin }) {
   const { isDark } = useTheme();
@@ -38,6 +40,14 @@ export default function LoginPage({ onLogin }) {
     } finally {
       setLoading(false);
     }
+  }
+
+  function fillDemoCredentials() {
+    setIsRegister(false);
+    setRegistrationSuccess(false);
+    setError('');
+    setEmail(DEMO_EMAIL);
+    setPassword(DEMO_PASSWORD);
   }
 
   const muted = isDark ? '#8d887c' : '#64748b';
@@ -154,6 +164,34 @@ export default function LoginPage({ onLogin }) {
               {loading ? 'Carregando...' : isRegister ? 'Criar conta' : 'Entrar'}
             </button>
           </form>
+
+          {!isRegister && (
+            <div
+              className="mt-5 rounded-lg border p-4"
+              style={{
+                background: 'var(--ft-surface-2)',
+                borderColor: 'var(--ft-border)',
+              }}
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-xs font-semibold uppercase" style={{ color: GOLD }}>Acesso demo</p>
+                  <p className="mt-1 text-xs" style={{ color: muted }}>Use para testar sem criar uma conta.</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={fillDemoCredentials}
+                  className="ft-button-secondary shrink-0 rounded-md px-3 py-2 text-xs font-semibold"
+                >
+                  Preencher
+                </button>
+              </div>
+              <div className="mt-3 grid gap-2 text-xs" style={{ color: 'var(--ft-text)' }}>
+                <p><strong>Email:</strong> {DEMO_EMAIL}</p>
+                <p><strong>Senha:</strong> {DEMO_PASSWORD}</p>
+              </div>
+            </div>
+          )}
         </div>
 
         <p className="mt-6 text-center text-xs" style={{ color: muted }}>
