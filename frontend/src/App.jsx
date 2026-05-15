@@ -78,7 +78,7 @@ function AppContent() {
   };
 
   return (
-    <div className="flex h-screen" style={{ backgroundColor: isDark ? '#050505' : '#f8fafc' }}>
+    <div className="ft-app-shell flex h-screen">
       <SideBar
         currentPage={page}
         onNavigate={setPage}
