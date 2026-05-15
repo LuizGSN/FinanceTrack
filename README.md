@@ -104,6 +104,13 @@ Credenciais padrao:
 
 Voce pode alterar esses dados com `DEMO_USER_NAME`, `DEMO_USER_EMAIL` e `DEMO_USER_PASSWORD` no `.env`.
 
+Para limpar tudo sem criar conta demo:
+
+```bash
+cd backend
+npm run reset:empty
+```
+
 ## 📁 Estrutura do Projeto
 
 ```

@@ -34,6 +34,8 @@ const demoInvestments = [
   ['Bitcoin', 'crypto', 'Binance', 900, 1025, 430000, 489000, 0.00209, '2026-04-20', null, 'Posicao pequena para diversificacao'],
 ];
 
+const shouldSeedDemo = !process.argv.includes('--empty');
+
 async function resetDemoData() {
   if (!process.env.DATABASE_URL) {
     throw new Error('DATABASE_URL nao encontrado. Configure o .env antes de executar.');
@@ -45,6 +47,12 @@ async function resetDemoData() {
     await client.query('BEGIN');
 
     await client.query('TRUNCATE TABLE investments, transactions, users RESTART IDENTITY CASCADE');
+
+    if (!shouldSeedDemo) {
+      await client.query('COMMIT');
+      console.log('Todos os usuarios e dados foram apagados. Nenhuma conta demo foi criada.');
+      return;
+    }
 
     const passwordHash = await bcrypt.hash(demoUser.password, 12);
     const userResult = await client.query(
