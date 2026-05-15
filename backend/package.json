@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
+    "reset:demo": "node scripts/reset-demo-data.js",
     "test": "jest --coverage",
     "test:watch": "jest --watch"
   },

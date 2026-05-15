@@ -89,6 +89,21 @@ docker compose up --build
 
 Tudo sobe em um comando: PostgreSQL, backend e frontend. Acesse `http://localhost`.
 
+## Conta Demo
+
+Para limpar todos os usuarios e dados do banco configurado no `.env` e recriar uma conta demo:
+
+```bash
+cd backend
+npm run reset:demo
+```
+
+Credenciais padrao:
+- Email: `demo@financetrack.app`
+- Senha: `demo123456`
+
+Voce pode alterar esses dados com `DEMO_USER_NAME`, `DEMO_USER_EMAIL` e `DEMO_USER_PASSWORD` no `.env`.
+
 ## 📁 Estrutura do Projeto
 
 ```
