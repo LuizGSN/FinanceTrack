@@ -24,11 +24,16 @@ const TEXT_SECONDARY = '#888';
 const RED = '#ef4444';
 const GREEN = '#22c55e';
 
+const toNumber = (value) => {
+  const number = Number(value);
+  return Number.isFinite(number) ? number : 0;
+};
+
 const fmt = (v) =>
-  new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
+  new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(toNumber(v));
 
 const fmtNumber = (v) =>
-  new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 4 }).format(v);
+  new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 4 }).format(toNumber(v));
 
 const formatDate = (d) => {
   if (!d) return '—';
@@ -171,14 +176,14 @@ export default function InvestmentsPage({ user, onLogout, onDashboard, onAnalyti
     }
   }
 
-  const totalInitial = investments.reduce((sum, inv) => sum + (inv.initial_amount || 0), 0);
-  const totalCurrent = investments.reduce((sum, inv) => sum + (inv.current_value || 0), 0);
+  const totalInitial = investments.reduce((sum, inv) => sum + toNumber(inv.initial_amount), 0);
+  const totalCurrent = investments.reduce((sum, inv) => sum + toNumber(inv.current_value), 0);
   const totalGain = totalCurrent - totalInitial;
   const gainPercent = totalInitial > 0 ? ((totalGain / totalInitial) * 100).toFixed(2) : 0;
 
   // Agrupar por tipo
   const byType = investments.reduce((acc, inv) => {
-    acc[inv.type] = (acc[inv.type] || 0) + (inv.current_value || 0);
+    acc[inv.type] = toNumber(acc[inv.type]) + toNumber(inv.current_value);
     return acc;
   }, {});
 
@@ -559,15 +564,20 @@ export default function InvestmentsPage({ user, onLogout, onDashboard, onAnalyti
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {investments.map((inv) => {
-              const gain = (inv.current_value || 0) - (inv.initial_amount || 0);
-              const gainPct = (inv.initial_amount || 0) > 0 ? ((gain / inv.initial_amount) * 100).toFixed(2) : '0.00';
+              const initialAmount = toNumber(inv.initial_amount);
+              const currentValue = toNumber(inv.current_value);
+              const sharePrice = toNumber(inv.share_price);
+              const currentSharePrice = toNumber(inv.current_share_price);
+              const sharesCount = toNumber(inv.shares_count);
+              const gain = currentValue - initialAmount;
+              const gainPct = initialAmount > 0 ? ((gain / initialAmount) * 100).toFixed(2) : '0.00';
               const isGain = gain >= 0;
               const typeLabel = getInvestmentTypeLabel(inv.type || 'other');
               const icon = INVESTMENT_TYPES.find(t => t.value === inv.type)?.icon || '📦';
 
               // Calcular valor nas cotas
-              const sharesValue = (inv.shares_count || 0) && (inv.current_share_price || 0) ? inv.shares_count * inv.current_share_price : null;
-              const shareGainPct = (inv.share_price || 0) && (inv.current_share_price || 0) ? (((inv.current_share_price - inv.share_price) / inv.share_price) * 100).toFixed(2) : '0.00';
+              const sharesValue = sharesCount > 0 && currentSharePrice > 0 ? sharesCount * currentSharePrice : null;
+              const shareGainPct = sharePrice > 0 && currentSharePrice > 0 ? (((currentSharePrice - sharePrice) / sharePrice) * 100).toFixed(2) : '0.00';
 
               return (
                 <div key={inv.id} className="p-5 rounded-xl" style={{
@@ -615,11 +625,11 @@ export default function InvestmentsPage({ user, onLogout, onDashboard, onAnalyti
                   <div className="grid grid-cols-2 gap-3 mb-4">
                     <div className="p-3 rounded-lg" style={{ backgroundColor: '#111' }}>
                       <p className="text-xs" style={{ color: TEXT_SECONDARY }}>Investido</p>
-                      <p className="font-semibold" style={{ color: TEXT_PRIMARY }}>{fmt(inv.initial_amount)}</p>
+                      <p className="font-semibold" style={{ color: TEXT_PRIMARY }}>{fmt(initialAmount)}</p>
                     </div>
                     <div className="p-3 rounded-lg" style={{ backgroundColor: '#111' }}>
                       <p className="text-xs" style={{ color: TEXT_SECONDARY }}>Atual</p>
-                      <p className="font-semibold" style={{ color: TEXT_PRIMARY }}>{fmt(inv.current_value)}</p>
+                      <p className="font-semibold" style={{ color: TEXT_PRIMARY }}>{fmt(currentValue)}</p>
                     </div>
                   </div>
 
@@ -639,26 +649,26 @@ export default function InvestmentsPage({ user, onLogout, onDashboard, onAnalyti
                   </div>
 
                   {/* Detalhes das cotas */}
-                  {(inv.share_price || inv.current_share_price || inv.shares_count) && (
+                  {(sharePrice > 0 || currentSharePrice > 0 || sharesCount > 0) && (
                     <div className="p-3 rounded-lg mb-3" style={{ backgroundColor: '#111', border: '1px solid #1a1a1a' }}>
                       <p className="text-xs font-semibold mb-2" style={{ color: GOLD }}>Detalhes das Cotas</p>
                       <div className="space-y-2 text-xs">
-                        {inv.share_price && (
+                        {sharePrice > 0 && (
                           <div className="flex justify-between">
                             <span style={{ color: TEXT_SECONDARY }}>Preço compra:</span>
-                            <span className="font-medium" style={{ color: TEXT_PRIMARY }}>{fmt(inv.share_price)}</span>
+                            <span className="font-medium" style={{ color: TEXT_PRIMARY }}>{fmt(sharePrice)}</span>
                           </div>
                         )}
-                        {inv.current_share_price && (
+                        {currentSharePrice > 0 && (
                           <div className="flex justify-between">
                             <span style={{ color: TEXT_SECONDARY }}>Preço atual:</span>
-                            <span className="font-medium" style={{ color: TEXT_PRIMARY }}>{fmt(inv.current_share_price)}</span>
+                            <span className="font-medium" style={{ color: TEXT_PRIMARY }}>{fmt(currentSharePrice)}</span>
                           </div>
                         )}
-                        {inv.shares_count && (
+                        {sharesCount > 0 && (
                           <div className="flex justify-between">
                             <span style={{ color: TEXT_SECONDARY }}>Qtd. cotas:</span>
-                            <span className="font-medium" style={{ color: TEXT_PRIMARY }}>{fmtNumber(inv.shares_count)}</span>
+                            <span className="font-medium" style={{ color: TEXT_PRIMARY }}>{fmtNumber(sharesCount)}</span>
                           </div>
                         )}
                         {sharesValue !== null && (
@@ -667,7 +677,7 @@ export default function InvestmentsPage({ user, onLogout, onDashboard, onAnalyti
                             <span className="font-medium" style={{ color: isGain ? GREEN : RED }}>{fmt(sharesValue)}</span>
                           </div>
                         )}
-                        {inv.share_price && inv.current_share_price && (
+                        {sharePrice > 0 && currentSharePrice > 0 && (
                           <div className="flex justify-between">
                             <span style={{ color: TEXT_SECONDARY }}>Var. cota:</span>
                             <span className={`font-medium ${parseFloat(shareGainPct) >= 0 ? 'text-green-500' : 'text-red-500'}`}>
